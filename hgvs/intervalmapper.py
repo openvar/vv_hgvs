@@ -51,7 +51,6 @@ from hgvs.exceptions import HGVSInvalidIntervalError
 from six.moves import range
 
 _logger = logging.getLogger(__name__)
-_logger.warning("This module is deprecated and will be removed in a future release")
 
 
 # N.B. This Interval is internal to intervalmapper.py. It is *NOT* the
