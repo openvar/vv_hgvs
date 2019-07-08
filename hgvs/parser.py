@@ -28,6 +28,14 @@ import hgvs.posedit
 import hgvs.sequencevariant
 
 
+def parse_error_hash(self):
+    """Define missing ParseError.__hash__()."""
+    return hash((self.position, self.formatReason()))
+
+
+parsley.ParseError.__hash__ = parse_error_hash
+
+
 class Parser(object):
     """Provides comprehensive parsing of HGVS varaint strings (*i.e.*,
     variants represented according to the Human Genome Variation
