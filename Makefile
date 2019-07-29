@@ -8,13 +8,13 @@
 SHELL:=/bin/bash -e -o pipefail
 SELF:=$(firstword $(MAKEFILE_LIST))
 
-PKG=hgvs
+PKG=vvhgvs
 PKGD=$(subst .,/,${PKG})
 PYV:=3.6
 VEDIR=venv/${PYV}
 
 TEST_DIRS:=tests
-DOC_TESTS:=doc hgvs ./README.rst
+DOC_TESTS:=doc vvhgvs ./README.rst
 
 
 ############################################################################

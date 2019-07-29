@@ -1,19 +1,19 @@
 import os
 import re
 
-import hgvs
+import vvhgvs
 
 # N.B. In sphinx parlance, version is supposed to be the undecorated
 # version (e.g., 1.2 or 1.2.3).  release corresponds to __version__
 # (e.g., 1.2.3.post3).
-release = str(hgvs.__version__)
+release = str(vvhgvs.__version__)
 version = re.sub(r"\.post\d+$", "", release)
 
 project = u'HGVS'
 authors = project + ' Contributors'
 copyright = u'2017, ' + authors
 
-extlinks = {'issue': ('https://github.com/biocommons/hgvs/issues/%s', 'issue '), }
+extlinks = {'issue': ('https://github.com/openvar/vv_hgvs/issues/%s', 'issue '), }
 
 man_pages = [('index', project, project + u' Documentation', [project + u' Contributors'], 1)]
 

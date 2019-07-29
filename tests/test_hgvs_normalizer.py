@@ -7,14 +7,14 @@ import unittest
 
 import pytest
 
-from hgvs.exceptions import HGVSError, HGVSUnsupportedOperationError, HGVSInvalidVariantError, HGVSInvalidVariantError
-import hgvs.dataproviders.uta
-import hgvs.variantmapper
-import hgvs.parser
-import hgvs.normalizer
+from vvhgvs.exceptions import HGVSError, HGVSUnsupportedOperationError, HGVSInvalidVariantError, HGVSInvalidVariantError
+import vvhgvs.dataproviders.uta
+import vvhgvs.variantmapper
+import vvhgvs.parser
+import vvhgvs.normalizer
 from support import CACHE
 
-hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
 
 
 @pytest.mark.normalization
@@ -23,11 +23,11 @@ class Test_HGVSNormalizer(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.hp = hgvs.parser.Parser()
-        cls.norm = hgvs.normalizer.Normalizer(hdp, shuffle_direction=3, cross_boundaries=True)
-        cls.norm5 = hgvs.normalizer.Normalizer(hdp, shuffle_direction=5, cross_boundaries=True)
-        cls.normc = hgvs.normalizer.Normalizer(hdp, shuffle_direction=3, cross_boundaries=False)
-        cls.norm5c = hgvs.normalizer.Normalizer(hdp, shuffle_direction=5, cross_boundaries=False)
+        cls.hp = vvhgvs.parser.Parser()
+        cls.norm = vvhgvs.normalizer.Normalizer(hdp, shuffle_direction=3, cross_boundaries=True)
+        cls.norm5 = vvhgvs.normalizer.Normalizer(hdp, shuffle_direction=5, cross_boundaries=True)
+        cls.normc = vvhgvs.normalizer.Normalizer(hdp, shuffle_direction=3, cross_boundaries=False)
+        cls.norm5c = vvhgvs.normalizer.Normalizer(hdp, shuffle_direction=5, cross_boundaries=False)
 
     def test_c_normalizer(self):
         """Test normalizer for variant type c."""

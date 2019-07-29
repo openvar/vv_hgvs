@@ -35,7 +35,7 @@ if version_info < (3, ):
 else:
     import csv
 
-import hgvs.parser
+import vvhgvs.parser
 from six.moves import map
 import six
 
@@ -43,7 +43,7 @@ import six
 class TestGrammarFull(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.p = hgvs.parser.Parser()
+        cls.p = vvhgvs.parser.Parser()
         cls.grammar = cls.p._grammar
         cls._test_fn = os.path.join(os.path.dirname(__file__), "data", "grammar_test.tsv")
 
@@ -51,7 +51,7 @@ class TestGrammarFull(unittest.TestCase):
         """ensure that all rules in grammar have tests"""
 
         grammar_rule_re = re.compile(r"^(\w+)")
-        grammar_fn = pkg_resources.resource_filename(__name__, "../hgvs/_data/hgvs.pymeta")
+        grammar_fn = pkg_resources.resource_filename(__name__, "../vvhgvs/_data/hgvs.pymeta")
         with open(grammar_fn, "r") as f:
             grammar_rules = set(r.group(1) for r in filter(None, map(grammar_rule_re.match, f)))
 

@@ -5,10 +5,10 @@ import unittest
 
 import pytest
 
-from hgvs.exceptions import HGVSError, HGVSUnsupportedOperationError
-from hgvs.enums import Datum
-import hgvs.location
-import hgvs.parser
+from vvhgvs.exceptions import HGVSError, HGVSUnsupportedOperationError
+from vvhgvs.enums import Datum
+import vvhgvs.location
+import vvhgvs.parser
 
 
 @pytest.mark.quick
@@ -16,19 +16,19 @@ import hgvs.parser
 class Test_SimplePosition(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.hp = hgvs.parser.Parser()
+        cls.hp = vvhgvs.parser.Parser()
 
     def test_success(self):
-        self.assertEqual(str(hgvs.location.SimplePosition(5)), "5")
-        self.assertEqual(str(hgvs.location.SimplePosition(5, uncertain=True)), "(5)")
-        self.assertEqual(str(hgvs.location.SimplePosition(None)), "?")
+        self.assertEqual(str(vvhgvs.location.SimplePosition(5)), "5")
+        self.assertEqual(str(vvhgvs.location.SimplePosition(5, uncertain=True)), "(5)")
+        self.assertEqual(str(vvhgvs.location.SimplePosition(None)), "?")
 
     def test_failure(self):
         with self.assertRaises(AssertionError):
-            self.assertEqual(hgvs.location.SimplePosition(-1), "SHOULD FAIL")
+            self.assertEqual(vvhgvs.location.SimplePosition(-1), "SHOULD FAIL")
 
     def test_simple_subtraction(self):
-        self.assertEqual(hgvs.location.SimplePosition(5) - hgvs.location.SimplePosition(3), 2)
+        self.assertEqual(vvhgvs.location.SimplePosition(5) - vvhgvs.location.SimplePosition(3), 2)
 
     def test_simple_comparision(self):
         var = self.hp.parse_hgvs_variant("NC_000007.13:g.36561662_36561683del")
@@ -50,11 +50,11 @@ class Test_SimplePosition(unittest.TestCase):
 class Test_BaseOffsetPosition(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.hp = hgvs.parser.Parser()
+        cls.hp = vvhgvs.parser.Parser()
 
     def test_success(self):
         # r.5
-        cdsp = hgvs.location.BaseOffsetPosition(5)
+        cdsp = vvhgvs.location.BaseOffsetPosition(5)
         self.assertEqual(cdsp.datum, Datum.SEQ_START)
         self.assertEqual(cdsp.base, 5)
         self.assertEqual(cdsp.offset, 0)
@@ -76,7 +76,7 @@ class Test_BaseOffsetPosition(unittest.TestCase):
         self.assertEqual(str(cdsp), "(5+?)")
 
         # c.*5
-        cdsp = hgvs.location.BaseOffsetPosition(5, datum=Datum.CDS_END)
+        cdsp = vvhgvs.location.BaseOffsetPosition(5, datum=Datum.CDS_END)
         self.assertEqual(cdsp.datum, Datum.CDS_END)
         self.assertEqual(cdsp.base, 5)
         self.assertEqual(cdsp.offset, 0)
@@ -89,10 +89,10 @@ class Test_BaseOffsetPosition(unittest.TestCase):
         self.assertEqual(str(cdsp), "(*5+7)")
 
     def test_baseoffset_subtraction(self):
-        v30 = hgvs.location.BaseOffsetPosition(3, 0)
-        v50 = hgvs.location.BaseOffsetPosition(5, 0)
-        v52 = hgvs.location.BaseOffsetPosition(5, 2)
-        v54 = hgvs.location.BaseOffsetPosition(5, 4)
+        v30 = vvhgvs.location.BaseOffsetPosition(3, 0)
+        v50 = vvhgvs.location.BaseOffsetPosition(5, 0)
+        v52 = vvhgvs.location.BaseOffsetPosition(5, 2)
+        v54 = vvhgvs.location.BaseOffsetPosition(5, 4)
 
         self.assertEqual(v50 - v30, 2)
 
@@ -158,16 +158,16 @@ class Test_BaseOffsetPosition(unittest.TestCase):
 class Test_AAPosition(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.hp = hgvs.parser.Parser()
+        cls.hp = vvhgvs.parser.Parser()
 
     def test_AAPosition(self):
-        ap = hgvs.location.AAPosition(15, "S")
+        ap = vvhgvs.location.AAPosition(15, "S")
         self.assertEqual(ap.pos, 15)
         self.assertEqual(str(ap), "Ser15")
 
     def test_aaposition_subtraction(self):
-        l1 = hgvs.location.AAPosition(15, 'S')
-        l2 = hgvs.location.AAPosition(20, 'S')
+        l1 = vvhgvs.location.AAPosition(15, 'S')
+        l2 = vvhgvs.location.AAPosition(20, 'S')
         self.assertEqual(l2 - l1, 5)
 
     def test_aaposition_comparision(self):
@@ -183,8 +183,8 @@ class Test_AAPosition(unittest.TestCase):
 @pytest.mark.quick
 class Test_Interval(unittest.TestCase):
     def test_Interval(self):
-        ival = hgvs.location.Interval(
-            hgvs.location.BaseOffsetPosition(base=12, offset=+34), hgvs.location.BaseOffsetPosition(
+        ival = vvhgvs.location.Interval(
+            vvhgvs.location.BaseOffsetPosition(base=12, offset=+34), vvhgvs.location.BaseOffsetPosition(
                 base=56, offset=-78))
         self.assertEqual(ival.start.base, 12)
         self.assertEqual(ival.start.offset, 34)
@@ -193,8 +193,8 @@ class Test_Interval(unittest.TestCase):
         self.assertEqual(str(ival), "12+34_56-78")
 
     def test_length(self):
-        ival = hgvs.location.Interval(
-            hgvs.location.BaseOffsetPosition(base=12, offset=0), hgvs.location.BaseOffsetPosition(base=50, offset=0))
+        ival = vvhgvs.location.Interval(
+            vvhgvs.location.BaseOffsetPosition(base=12, offset=0), vvhgvs.location.BaseOffsetPosition(base=50, offset=0))
         self.assertEqual(ival._length(), 39)
 
 

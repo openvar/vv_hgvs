@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-import hgvs
-import hgvs.parser
+import vvhgvs
+import vvhgvs.parser
 from tabulate import tabulate
 from six.moves import map
 
-hp = hgvs.parser.Parser()
+hp = vvhgvs.parser.Parser()
 
 variants = [
     "NM_01.2:c.1_2del",
@@ -26,7 +26,7 @@ variants = [
 ]
 
 
-headers = "hgvs ref alt etype delta".split()
+headers = "vvhgvs ref alt etype delta".split()
 def gen1(h):
     v = hp.parse_hgvs_variant(h)
     return [h, v.posedit.edit.ref, v.posedit.edit.alt, v.posedit.edit.type, v.posedit.length_change()]

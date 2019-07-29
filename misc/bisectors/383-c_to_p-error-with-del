@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-import hgvs
-import hgvs.dataproviders.uta
-import hgvs.parser
-import hgvs.sequencevariant
-import hgvs.assemblymapper
+import vvhgvs
+import vvhgvs.dataproviders.uta
+import vvhgvs.parser
+import vvhgvs.sequencevariant
+import vvhgvs.assemblymapper
 
-hdp = hgvs.dataproviders.uta.connect()
-hp = hgvs.parser.Parser()
-evm = hgvs.assemblymapper.AssemblyMapper(hdp,
+hdp = vvhgvs.dataproviders.uta.connect()
+hp = vvhgvs.parser.Parser()
+evm = vvhgvs.assemblymapper.AssemblyMapper(hdp,
                                            replace_reference=True, assembly_name='GRCh37',
                                            alt_aln_method='splign')
 

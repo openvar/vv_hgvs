@@ -16,11 +16,11 @@ else:
 
 import pytest
 
-from hgvs.exceptions import HGVSError
-import hgvs.dataproviders.uta
-import hgvs.parser
-import hgvs.sequencevariant
-import hgvs.variantmapper
+from vvhgvs.exceptions import HGVSError
+import vvhgvs.dataproviders.uta
+import vvhgvs.parser
+import vvhgvs.sequencevariant
+import vvhgvs.variantmapper
 from support import CACHE
 
 
@@ -35,9 +35,9 @@ def gxp_file_reader(fn):
 @pytest.mark.mapping
 class Test_VariantMapper(unittest.TestCase):
     def setUp(self):
-        self.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
-        self.hm = hgvs.variantmapper.VariantMapper(self.hdp)
-        self.hp = hgvs.parser.Parser()
+        self.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        self.hm = vvhgvs.variantmapper.VariantMapper(self.hdp)
+        self.hp = vvhgvs.parser.Parser()
 
     # ZCCHC3 -- one exon, + strand
     # reece@[local]/uta_dev=> select hgnc,alt_strand,n_exons,tx_ac,alt_ac,s_cigars,cds_start_i,cds_end_i from bermuda.bermuda_data_mv where tx_ac = "NM_033089.6";

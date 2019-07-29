@@ -7,13 +7,13 @@ import unittest
 
 import pytest
 
-import hgvs.dataproviders.uta
+import vvhgvs.dataproviders.uta
 
-import hgvs.location
-import hgvs.parser
-from hgvs.exceptions import HGVSError, HGVSDataNotAvailableError, HGVSInvalidIntervalError
-from hgvs.alignmentmapper import AlignmentMapper
-from hgvs.enums import Datum
+import vvhgvs.location
+import vvhgvs.parser
+from vvhgvs.exceptions import HGVSError, HGVSDataNotAvailableError, HGVSInvalidIntervalError
+from vvhgvs.alignmentmapper import AlignmentMapper
+from vvhgvs.enums import Datum
 from support import CACHE
 
 
@@ -23,8 +23,8 @@ class Test_AlignmentMapper(unittest.TestCase):
 
     @classmethod
     def setUp(cls):
-        cls.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
-        cls.parser = hgvs.parser.Parser()
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.parser = vvhgvs.parser.Parser()
 
     def test_alignmentmapper_failures(self):
         with self.assertRaises(HGVSDataNotAvailableError):
@@ -50,7 +50,7 @@ class Test_AlignmentMapper(unittest.TestCase):
         tx_ac = "NM_178434.2"
         alt_ac = "NC_000001.10"
         tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="splign")
-        parser = hgvs.parser.Parser()
+        parser = vvhgvs.parser.Parser()
         test_cases = [
         # ? is not yet supported
         # {"g": parser.parse_g_interval("(?_152573139)"), "n": parser.parse_n_interval("(?_2)"), "c": parser.parse_c_interval("(?_-69)")},
@@ -63,7 +63,7 @@ class Test_AlignmentMapper(unittest.TestCase):
         tx_ac = "NM_178434.2"
         alt_ac = "NC_000001.10"
         tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="splign")
-        parser = hgvs.parser.Parser()
+        parser = vvhgvs.parser.Parser()
         test_cases = [
         # 5'
             {
@@ -116,7 +116,7 @@ class Test_AlignmentMapper(unittest.TestCase):
         tx_ac = "NM_033445.2"
         alt_ac = "NC_000001.10"
         tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="splign")
-        parser = hgvs.parser.Parser()
+        parser = vvhgvs.parser.Parser()
         test_cases = [
         # 3'
             {
@@ -169,7 +169,7 @@ class Test_AlignmentMapper(unittest.TestCase):
         tx_ac = "NM_014357.4"
         alt_ac = "NC_000001.10"
         tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="splign")
-        parser = hgvs.parser.Parser()
+        parser = vvhgvs.parser.Parser()
         test_cases = [
         # 5'
             {
@@ -252,7 +252,7 @@ class Test_AlignmentMapper(unittest.TestCase):
         tx_ac = "NM_178449.3"
         alt_ac = "NC_000019.9"
         tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="splign")
-        parser = hgvs.parser.Parser()
+        parser = vvhgvs.parser.Parser()
         test_cases = [
         # 3'
             {
@@ -355,10 +355,10 @@ if __name__ == "__main__":
     #    #     C | C
     #    #      484
     #
-    #    ### Add one to g., r., and c. because we are returning hgvs coordinates ###
+    #    ### Add one to g., r., and c. because we are returning vvhgvs coordinates ###
     #    ac = "NM_033089.6"
     #    tm = AlignmentMapper(self.hdp, ac, self.ref)
-    #    cds = 24 + 1 # hgvs
+    #    cds = 24 + 1 # vvhgvs
     #    # gs, ge = genomic start/end; rs,re = rna start/end; cs, ce = cdna start/end; so, eo = start offset/end offset
     #    test_cases = [
     #        {"gs": 278204, "ge": 278204, "rs": 1, "re": 1, "so": 0, "eo": 0, "d": Datum.SEQ_START, "cs": 1-cds, "ce": 1-cds},
@@ -368,7 +368,7 @@ if __name__ == "__main__":
     #        # around cds (cds can"t be zero)
     #        {"gs": 278227, "ge": 278227, "rs": 24, "re": 24, "so": 0, "eo": 0, "d": Datum.SEQ_START, "cs": 24-cds, "ce": 24-cds},
     #
-    #        # beyond cds add 1 due to hgvs
+    #        # beyond cds add 1 due to vvhgvs
     #        {"gs": 278228, "ge": 278228, "rs": 25, "re": 25, "so": 0, "eo": 0, "d": Datum.SEQ_START, "cs": 25-cds+1, "ce": 25-cds+1},
     #        {"gs": 278229, "ge": 278229, "rs": 26, "re": 26, "so": 0, "eo": 0, "d": Datum.SEQ_START, "cs": 26-cds+1, "ce": 26-cds+1},
     #        {"gs": 280966, "ge": 280966, "rs": 2760, "re": 2760, "so": 0, "eo": 0, "d": Datum.SEQ_START, "cs": 2760-cds+1, "ce": 2760-cds+1},
@@ -396,16 +396,16 @@ if __name__ == "__main__":
     #      NM_182763.2 |   2 | 3    |       896 |    3841 | GRCh37.p10 | 150547026 | 150549967 | 1077M4I1864M | GATGGGTTTGTGGAGTTCTT
     #    """
     #
-    #    ### Add one to g., r., and c. because we are returning hgvs coordinates ###
+    #    ### Add one to g., r., and c. because we are returning vvhgvs coordinates ###
     #
     #    ac = "NM_182763.2"
     #    tm = AlignmentMapper(self.hdp, ac, self.ref)
-    #    cds = 208 + 1 # hgvs
+    #    cds = 208 + 1 # vvhgvs
     #    test_cases = [
     #        {"gs": 150552215, "ge": 150552215, "rs": 1, "re": 1, "so": 0, "eo": 0, "d": Datum.SEQ_START , "cs": 1-cds, "ce": 1-cds},
     #        {"gs": 150552214, "ge": 150552214, "rs": 2, "re": 2, "so": 0, "eo": 0, "d": Datum.SEQ_START , "cs": 2-cds, "ce": 2-cds},
     #
-    #        # beyond cds add 1 due to hgvs
+    #        # beyond cds add 1 due to vvhgvs
     #        {"gs": 150552007, "ge": 150552007, "rs": 209, "re": 209, "so": 0, "eo": 0, "d": Datum.SEQ_START , "cs": 209-cds+1, "ce": 209-cds+1},
     #        {"gs": 150547027, "ge": 150547027, "rs": 3842, "re": 3842, "so": 0, "eo": 0, "d": Datum.SEQ_START , "cs": 3842-cds+1, "ce": 3842-cds+1},
     #
@@ -472,17 +472,17 @@ if __name__ == "__main__":
     #    #  NM_145249.2 |   5 | 5    |       477 |     715 | GRCh37.p10 |  94568822 | 94569060 | 238M    |         |
     #    """
     #
-    #    ### Add one to g., r., and c. because we are returning hgvs coordinates ###
+    #    ### Add one to g., r., and c. because we are returning vvhgvs coordinates ###
     #
     #    ac = "NM_145249.2"
     #    tm = AlignmentMapper(self.hdp, ac, self.ref)
-    #    cds = 254 + 1 # hgvs
+    #    cds = 254 + 1 # vvhgvs
     #    test_cases = [
     #        #{"gs": 94547639, "ge": 94547639, "rs": 1, "re": 1, "so": 0, "eo": 0, "d": Datum.SEQ_START, "cs": 1-cds, "ce": 1-cds},
     #        #{"gs": 94547796, "ge": 94547796, "rs": 158, "re": 158, "so": 0, "eo": 0, "d": Datum.SEQ_START, "cs": 158-cds, "ce": 158-cds},
     #        #{"gs": 94563185, "ge": 94563185, "rs": 159, "re": 159, "so": -2, "eo": -2, "d": Datum.SEQ_START, "cs": 159-cds, "ce": 159-cds},
     #
-    #        # beyond cds add 1 due to hgvs
+    #        # beyond cds add 1 due to vvhgvs
     #        #{"gs": 94567118, "ge": 94567120, "rs": 316, "re": 316, "so": 0, "eo": 2, "d": Datum.SEQ_START, "cs": 316-cds+1, "ce": 316-cds+1},
     #        {"gs": 94567115, "ge": 94567118, "rs": 313, "re": 316, "so": 0, "eo": 0, "d": Datum.SEQ_START, "cs": 313-cds+1, "ce": 316-cds+1},
     #

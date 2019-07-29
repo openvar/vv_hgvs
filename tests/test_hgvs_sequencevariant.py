@@ -7,9 +7,9 @@ import unittest
 
 import pytest
 
-import hgvs
-import hgvs.sequencevariant
-import hgvs.parser
+import vvhgvs
+import vvhgvs.sequencevariant
+import vvhgvs.parser
 from support import CACHE
 
 
@@ -17,12 +17,12 @@ from support import CACHE
 @pytest.mark.models
 class Test_SequenceVariant(unittest.TestCase):
     def test_SequenceVariant(self):
-        var = hgvs.sequencevariant.SequenceVariant(ac="AC", type="B", posedit="1234DE>FG")
+        var = vvhgvs.sequencevariant.SequenceVariant(ac="AC", type="B", posedit="1234DE>FG")
         self.assertEqual(str(var), "AC:B.1234DE>FG")
 
     def test_fill_ref(self):
-        hp = hgvs.parser.Parser()
-        hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        hp = vvhgvs.parser.Parser()
+        hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
 
         # fill reference for sequence variants
         var = hp.parse_hgvs_variant("NM_001166478.1:c.31_32del").fill_ref(hdp)
@@ -44,7 +44,7 @@ class Test_SequenceVariant(unittest.TestCase):
         self.assertEqual(var.format({'max_ref_length': None}), "NM_001166478.1:c.31T=")
 
     def test_format(self):
-        hp = hgvs.parser.Parser()
+        hp = vvhgvs.parser.Parser()
 
         # Global default settings
         var = hp.parse_hgvs_variant("NP_001628.1:p.Gly528Arg")
@@ -52,11 +52,11 @@ class Test_SequenceVariant(unittest.TestCase):
         self.assertEqual(var.format(), "NP_001628.1:p.Gly528Arg")
 
         # Change global settings
-        hgvs.global_config.formatting.p_3_letter = False
+        vvhgvs.global_config.formatting.p_3_letter = False
         self.assertEqual(str(var), "NP_001628.1:p.G528R")
 
         # Custom settings
-        hgvs.global_config.formatting.p_3_letter = True
+        vvhgvs.global_config.formatting.p_3_letter = True
         conf = {"p_3_letter": False}
         self.assertEqual(var.format(conf), "NP_001628.1:p.G528R")
 

@@ -54,12 +54,12 @@ HGVS variants are represented using classes that represent elemental
 concepts of an HGVS sequence variant.  Each of the objects contains
 references to data that define the objects; those data may be Python
 built in types such as integers (int) or strings (unicode), or they
-may be other classes in the hgvs package. 
+may be other classes in the hgvs package.
 
 For example, a variant parsed like this:
 
->>> import hgvs.parser
->>> hgvsparser = hgvs.parser.Parser()
+>>> import vvhgvs.parser
+>>> hgvsparser = vvhgvs.parser.Parser()
 >>> var = hgvsparser.parse_hgvs_variant('NM_001197320.1:c.281C>T')
 
 will generate an object tree like the following:
@@ -102,11 +102,11 @@ Variant Mapping Tools
 @@@@@@@@@@@@@@@@@@@@@
 
 Variant mapping is supported by several modules.  Most users will
-likely be content with :class:`hgvs.variant.AssemblyMapper`.  For
+likely be content with :class:`vvhgvs.variant.AssemblyMapper`.  For
 completeness, it may help to understand how all of the mappers relate
 to each other.
 
-  :class:`hgvs.alignmentmapper.AlignmentMapper`
+  :class:`vvhgvs.alignmentmapper.AlignmentMapper`
 
      The AlignmentMapper uses CIGAR to map
      pairs of exon segments (typically exons in the transcript and
@@ -116,16 +116,16 @@ to each other.
      for the specified alignment.  It is also accommodates strand
      orientation.
 
-  :class:`hgvs.variantmapper.VariantMapper`
+  :class:`vvhgvs.variantmapper.VariantMapper`
 
      The VariantMapper uses
-     :class:`hgvs.alignmentmapper.AlignmentMapper` to provide g<->r,
+     :class:`vvhgvs.alignmentmapper.AlignmentMapper` to provide g<->r,
      r<->c, g<->c, and c->p transformations for
      :class:`SequenceVariant` objects. As with the AlignmentMapper,
      it must be instantiated with an appropriate transcript,
      reference, and alignment method.
 
-  :class:`hgvs.assemblymapper.AssemblyMapper`
+  :class:`vvhgvs.assemblymapper.AssemblyMapper`
 
      VariantMapper requires that the caller provide a transcript
      accession and an appropriate reference sequence, which in turn
@@ -137,7 +137,7 @@ to each other.
      mapping functionality that is tailored for mapping between a
      transcript and a primary assembly.
 
-  :class:`hgvs.projector.Projector`
+  :class:`vvhgvs.projector.Projector`
 
      Projector maps variants between transcripts using a common
      reference and alignment method.  For example, this tool can
@@ -162,17 +162,17 @@ specifically exon structures, transcript alignments, accessions, and
 sequences.  In order to isolate the hgvs package from the myriad
 choices and tradeoffs, these data are provided through an
 implementation of the (abstract) Data Provider Interface
-(:class:`hgvs.dataproviders.interface`).  Currently, the only concrete
+(:class:`vvhgvs.dataproviders.interface`).  Currently, the only concrete
 implementation of the data provider interface uses `UTA`_, an archive
 of transcripts, transcript sequences, and transcript-reference
 sequence alignments.
 
 Invitae provides a public UTA instance at ``uta.biocommons.org:5432``
-(PostgreSQL).  `hgvs` uses this public UTA instance by default, so
+(PostgreSQL).  `vvhgvs` uses this public UTA instance by default, so
 most users won't need to worry about this aspect of the hgvs package.
 However, a docker image of UTA is also available; see
 :ref:`installation` for details.
 
 Alternatively, users may implement their own providers that conform to
-the data providers interface. See :mod:`hgvs.dataproviders.uta` for an
+the data providers interface. See :mod:`vvhgvs.dataproviders.uta` for an
 example.

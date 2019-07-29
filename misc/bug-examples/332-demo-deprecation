@@ -5,11 +5,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 
-import hgvs.parser
+import vvhgvs.parser
 
 logging.basicConfig(level=logging.DEBUG)
 
-hp = hgvs.parser.Parser()
+hp = vvhgvs.parser.Parser()
 
 v = hp.parse_hgvs_variant("NM_01234.5:g.12_15dupAAAA")
 

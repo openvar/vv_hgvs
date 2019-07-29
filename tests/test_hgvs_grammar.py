@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-# we're not testing hgvs.parser, but rather merely using it to load the
+# we're not testing vvhgvs.parser, but rather merely using it to load the
 # grammar.  See test_hgvs_parser.py for the parser tests
 
 import unittest
 
 import pytest
 
-import hgvs.parser
+import vvhgvs.parser
 
 
 @pytest.mark.quick
@@ -16,7 +16,7 @@ class Test_Parser(unittest.TestCase):
     longMessage = True
 
     def setUp(self):
-        self.p = hgvs.parser.Parser(expose_all_rules=True)
+        self.p = vvhgvs.parser.Parser(expose_all_rules=True)
         self.grammar = self.p._grammar
 
     def test_parser_basic(self):

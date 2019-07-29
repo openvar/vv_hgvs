@@ -56,10 +56,10 @@ Important Notes
 @@@@@@@@@@@@@@@
 
 * **You are encouraged to** `browse issues
-  <https://github.com/biocommons/hgvs/issues>`_.  All known issues are
+  <https://github.com/openvar/vv_hgvs/issues>`_.  All known issues are
   listed there.  Please report any issues you find.
 * **Use a pip package specification to stay within minor releases.**
-  For example, ``hgvs>=1.1,<1.2``. `hgvs` uses `Semantic Versioning
+  For example, ``vvhgvs>=1.1,<1.2``. `vvhgvs` uses `Semantic Versioning
   <http://semver.org/>`__.
 
 
@@ -69,14 +69,14 @@ Examples
 Installation
 #############
 
-By default, `hgvs` uses remote data sources, which makes installation
+By default, `vvhgvs` uses remote data sources, which makes installation
 easy.  
 
 ::
 
   $ mkvirtualenv hgvs-test
   (hgvs-test)$ pip install --upgrade setuptools
-  (hgvs-test)$ pip install hgvs
+  (hgvs-test)$ pip install vvhgvs
   (hgvs-test)$ python
 
 See `Installation instructions
@@ -89,19 +89,19 @@ Archive (UTA) <https://github.com/biocommons/uta/>`__ and `SeqRepo
 Parsing and Formating
 #####################
 
-`hgvs` parses HGVS variants (as strings) into an object model, and can format
+`vvhgvs` parses HGVS variants (as strings) into an object model, and can format
 object models back into HGVS strings.
 
 ::
 
-  >>> import hgvs.parser
+  >>> import vvhgvs.parser
 
   # start with these variants as strings
   >>> hgvs_g = 'NC_000007.13:g.36561662C>T'
   >>> hgvs_c = 'NM_001637.3:c.1582G>A'
 
   # parse the genomic variant into a Python structure
-  >>> hp = hgvs.parser.Parser()
+  >>> hp = vvhgvs.parser.Parser()
   >>> var_g = hp.parse_hgvs_variant(hgvs_g)
   >>> var_g
   SequenceVariant(ac=NC_000007.13, type=g, posedit=36561662C>T)
@@ -118,19 +118,19 @@ object models back into HGVS strings.
 Projecting ("Mapping") variants between aligned genome and transcript sequences
 ###############################################################################
 
-`hgvs` provides tools to project variants between genome, transcript,
+`vvhgvs` provides tools to project variants between genome, transcript,
 and protein sequences.  Non-coding and intronic variants are
 supported.  Alignment data come from the `Universal Transcript Archive
 (UTA) <https://github.com/biocommons/uta/>`__.
 
 ::
 
-  >>> import hgvs.dataproviders.uta
-  >>> import hgvs.assemblymapper
+  >>> import vvhgvs.dataproviders.uta
+  >>> import vvhgvs.assemblymapper
 
   # initialize the mapper for GRCh37 with splign-based alignments
-  >>> hdp = hgvs.dataproviders.uta.connect()
-  >>> am = hgvs.assemblymapper.AssemblyMapper(hdp,
+  >>> hdp = vvhgvs.dataproviders.uta.connect()
+  >>> am = vvhgvs.assemblymapper.AssemblyMapper(hdp,
   ...          assembly_name='GRCh37', alt_aln_method='splign',
   ...          replace_reference=True)
   
@@ -196,8 +196,8 @@ veriants into a single representation.
 ::
 
   # rewrite ins as dup (depends on sequence context)
-  >>> import hgvs.normalizer
-  >>> hn = hgvs.normalizer.Normalizer(hdp)
+  >>> import vvhgvs.normalizer
+  >>> hn = vvhgvs.normalizer.Normalizer(hdp)
   >>> hn.normalize(hp.parse_hgvs_variant('NM_001166478.1:c.35_36insT'))
   SequenceVariant(ac=NM_001166478.1, type=c, posedit=35dup)
 

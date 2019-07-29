@@ -6,7 +6,7 @@
 # projected variant locations may be within, exactly equal to,
 # partially overlap, or subsume the discrepancy
 
-# writes to stdout, and output/hgvs.__version__ if directory exists
+# writes to stdout, and output/vvhgvs.__version__ if directory exists
 
 # example:
 # (3.6) snafu$ ./run-tests
@@ -21,10 +21,10 @@
 import io
 import os
 
-import hgvs
-import hgvs.assemblymapper
-import hgvs.dataproviders.uta
-import hgvs.parser
+import vvhgvs
+import vvhgvs.assemblymapper
+import vvhgvs.dataproviders.uta
+import vvhgvs.parser
 
 output_dir_name = "output"
 
@@ -120,7 +120,7 @@ tests = {
 }
 
 if os.path.exists(output_dir_name):
-    out_path = os.path.join(output_dir_name, hgvs.__version__) 
+    out_path = os.path.join(output_dir_name, vvhgvs.__version__)
     out_fh = io.open(out_path, "w")
     def fprint(s):
         out_fh.write(s+"\n")
@@ -129,11 +129,11 @@ else:
     fprint = print
 
 
-hp = hgvsparser = hgvs.parser.Parser()
-hdp = hgvs.dataproviders.uta.connect()
-am38 = easyvariantmapper = hgvs.assemblymapper.AssemblyMapper(hdp, assembly_name='GRCh38', normalize=False)
+hp = hgvsparser = vvhgvs.parser.Parser()
+hdp = vvhgvs.dataproviders.uta.connect()
+am38 = easyvariantmapper = vvhgvs.assemblymapper.AssemblyMapper(hdp, assembly_name='GRCh38', normalize=False)
 
-fprint(f"# {hgvs.__version__}")
+fprint(f"# {vvhgvs.__version__}")
 fprint("disc_type\tloc_type\tvar_n\texpected\tgot (if failed)")
 for disc_type,testset in tests.items():
     for loc_type,tests in testset.items():

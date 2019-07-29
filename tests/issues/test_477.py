@@ -1,6 +1,6 @@
 import pytest
 
-from hgvs.exceptions import HGVSInvalidIntervalError
+from vvhgvs.exceptions import HGVSInvalidIntervalError
 
 tests = (
     # {"c": "", "g": "", "rs": "" },

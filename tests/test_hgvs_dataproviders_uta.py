@@ -7,13 +7,13 @@ import os
 import re
 import unittest
 
-from hgvs.exceptions import HGVSDataNotAvailableError
-import hgvs.dataproviders.uta
-import hgvs.edit
-import hgvs.location
-import hgvs.posedit
-import hgvs.variantmapper
-import hgvs.sequencevariant
+from vvhgvs.exceptions import HGVSDataNotAvailableError
+import vvhgvs.dataproviders.uta
+import vvhgvs.edit
+import vvhgvs.location
+import vvhgvs.posedit
+import vvhgvs.variantmapper
+import vvhgvs.sequencevariant
 from support import CACHE
 
 
@@ -93,29 +93,29 @@ class UTA_Base(object):
 class Test_hgvs_dataproviders_uta_UTA_default(unittest.TestCase, UTA_Base):
     @classmethod
     def setUpClass(cls):
-        cls.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
 
 
 class Test_hgvs_dataproviders_uta_UTA_default_with_pooling(unittest.TestCase, UTA_Base):
     @classmethod
     def setUpClass(cls):
-        cls.hdp = hgvs.dataproviders.uta.connect(
+        cls.hdp = vvhgvs.dataproviders.uta.connect(
             pooling=True, mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
 
 
 class TestUTACache(Test_hgvs_dataproviders_uta_UTA_default):
     def _create_cdna_variant(self):
-        start = hgvs.location.SimplePosition(118898437)
-        end = hgvs.location.SimplePosition(118898437)
-        iv = hgvs.location.Interval(start=start, end=end)
-        edit = hgvs.edit.NARefAlt(ref="C", alt="T")
-        posedit = hgvs.posedit.PosEdit(pos=iv, edit=edit)
-        genomic_variant = hgvs.sequencevariant.SequenceVariant(
+        start = vvhgvs.location.SimplePosition(118898437)
+        end = vvhgvs.location.SimplePosition(118898437)
+        iv = vvhgvs.location.Interval(start=start, end=end)
+        edit = vvhgvs.edit.NARefAlt(ref="C", alt="T")
+        posedit = vvhgvs.posedit.PosEdit(pos=iv, edit=edit)
+        genomic_variant = vvhgvs.sequencevariant.SequenceVariant(
             ac="NC_000011.9",
             type="g",
             posedit=posedit,
         )
-        variantmapper = hgvs.variantmapper.VariantMapper(self.hdp)
+        variantmapper = vvhgvs.variantmapper.VariantMapper(self.hdp)
         return variantmapper.g_to_c(genomic_variant, "NM_001164277.1")
 
     def test_deterministic_cache_results(self):

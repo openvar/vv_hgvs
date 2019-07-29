@@ -7,10 +7,10 @@ import unittest
 
 import pytest
 
-from hgvs.exceptions import HGVSUnsupportedOperationError
-import hgvs.dataproviders.uta
-import hgvs.parser
-import hgvs.variantmapper
+from vvhgvs.exceptions import HGVSUnsupportedOperationError
+import vvhgvs.dataproviders.uta
+import vvhgvs.parser
+import vvhgvs.variantmapper
 from support import CACHE
 
 
@@ -80,9 +80,9 @@ class Test_VariantLengths(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
-        cls.vm = hgvs.variantmapper.VariantMapper(cls.hdp)
-        cls.hp = hgvs.parser.Parser()
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.vm = vvhgvs.variantmapper.VariantMapper(cls.hdp)
+        cls.hp = vvhgvs.parser.Parser()
 
     def test_success_cases(self):
         "posedit length_change: test supported variant types"

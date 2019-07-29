@@ -11,10 +11,10 @@ import io, csv, logging, sys
 
 import ometa.runtime
 
-import hgvs.dataproviders.uta
+import vvhgvs.dataproviders.uta
 
-import hgvs.variantmapper as variantmapper
-import hgvs.parser
+import vvhgvs.variantmapper as variantmapper
+import vvhgvs.parser
 
 
 def read_tsv(fn):
@@ -37,9 +37,9 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
 
     m = 'splign'
-    u1 = hgvs.dataproviders.uta.connect()
-    variantmapper = hgvs.variantmapper.VariantMapper(u1, cache_transcripts=True)
-    hgvsparser = hgvs.parser.Parser()
+    u1 = vvhgvs.dataproviders.uta.connect()
+    variantmapper = vvhgvs.variantmapper.VariantMapper(u1, cache_transcripts=True)
+    hgvsparser = vvhgvs.parser.Parser()
 
     def _test1(rec):
         logger.debug('processing ' + ', '.join([rec['HGVSg'], rec['HGVSc'], rec['HGVSp']]))

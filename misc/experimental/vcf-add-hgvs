@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 __doc__ = """add HGVS tags to a VCF file on stdin, output to stdout
 
-eg$ vcf-add-hgvs <in.vcf >out.vcf
+eg$ vcf-add-vvhgvs <in.vcf >out.vcf
 
 """
 
@@ -18,13 +18,13 @@ import sys
 
 from bioutils.assemblies import get_assemblies
 
-import hgvs.edit
-import hgvs.location
-import hgvs.posedit
-import hgvs.sequencevariant
-import hgvs.parser
-import hgvs.dataproviders.uta
-import hgvs.variantmapper
+import vvhgvs.edit
+import vvhgvs.location
+import vvhgvs.posedit
+import vvhgvs.sequencevariant
+import vvhgvs.parser
+import vvhgvs.dataproviders.uta
+import vvhgvs.variantmapper
 
 
 _logger = logging.getLogger(__name__)
@@ -72,15 +72,15 @@ def alts_as_genomic_hgvs(contig_ac_map, r, keep_left_anchor=False):
                 alt = alt[lp:]
                 start += lp
 
-        var_g = hgvs.sequencevariant.SequenceVariant(ac=ac,
-                                             type='g',
-                                             posedit=hgvs.posedit.PosEdit(
-                                                 hgvs.location.Interval(start=hgvs.location.SimplePosition(start),
-                                                                        end=hgvs.location.SimplePosition(end),
-                                                                        uncertain=False),
-                                                 hgvs.edit.NARefAlt(ref=ref if ref != '' else None,
-                                                                    alt=alt if alt != '' else None,
-                                                                    uncertain=False)))
+        var_g = vvhgvs.sequencevariant.SequenceVariant(ac=ac,
+                                                       type='g',
+                                                       posedit=vvhgvs.posedit.PosEdit(
+                                                 vvhgvs.location.Interval(start=vvhgvs.location.SimplePosition(start),
+                                                                          end=vvhgvs.location.SimplePosition(end),
+                                                                          uncertain=False),
+                                                 vvhgvs.edit.NARefAlt(ref=ref if ref != '' else None,
+                                                                      alt=alt if alt != '' else None,
+                                                                      uncertain=False)))
 
         return str(var_g)
 
@@ -101,11 +101,11 @@ if __name__ == '__main__':
     opts = parse_args(sys.argv[1:])
 
     if opts.with_c_dot:
-        hp = hgvs.parser.Parser()
-        hdp = hgvs.dataproviders.uta.connect()
-        evm = easyvariantmapper = hgvs.variantmapper.AssemblyMapper(hdp,
-                                                                       assembly_name=opts.assembly,
-                                                                       alt_aln_method='splign')
+        hp = vvhgvs.parser.Parser()
+        hdp = vvhgvs.dataproviders.uta.connect()
+        evm = easyvariantmapper = vvhgvs.variantmapper.AssemblyMapper(hdp,
+                                                                      assembly_name=opts.assembly,
+                                                                      alt_aln_method='splign')
 
     assemblies = get_assemblies()
     assert opts.assembly in assemblies, "{} not in known assemblies (known: {}".format(

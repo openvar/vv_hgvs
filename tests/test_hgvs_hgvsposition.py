@@ -5,19 +5,19 @@ import unittest
 
 import pytest
 
-import hgvs.hgvsposition
+import vvhgvs.hgvsposition
 
 
 class Test_HGVSPosition(unittest.TestCase):
     @pytest.mark.quick
     @pytest.mark.models
     def test_hgvsposition(self):
-        var = hgvs.hgvsposition.HGVSPosition(
+        var = vvhgvs.hgvsposition.HGVSPosition(
             ac="NM_01234.5",
             type="c",
-            pos=hgvs.location.Interval(
-                hgvs.location.BaseOffsetPosition(base=12, offset=+34),
-                hgvs.location.BaseOffsetPosition(base=56, offset=-78)))
+            pos=vvhgvs.location.Interval(
+                vvhgvs.location.BaseOffsetPosition(base=12, offset=+34),
+                vvhgvs.location.BaseOffsetPosition(base=56, offset=-78)))
 
         self.assertEqual(str(var), "NM_01234.5:c.12+34_56-78")
 

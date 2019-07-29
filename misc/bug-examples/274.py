@@ -12,19 +12,19 @@ alt_aln_method.
 
 """
 
-import hgvs
-import hgvs.dataproviders.uta 
-import hgvs.variantmapper
-import hgvs.parser 
-from hgvs.exceptions import HGVSUsageError
+import vvhgvs
+import vvhgvs.dataproviders.uta
+import vvhgvs.variantmapper
+import vvhgvs.parser
+from vvhgvs.exceptions import HGVSUsageError
 from tests import CACHE
 
-hdp = hgvs.dataproviders.uta.connect(mode="run", cache=CACHE)
-hp = hgvs.parser.Parser()
+hdp = vvhgvs.dataproviders.uta.connect(mode="run", cache=CACHE)
+hp = vvhgvs.parser.Parser()
 alt_aln_method = "genebuild"
 assembly_name = 'GRCh37'
 variant = 'ENST00000225964:c.589G>T'
-evm = hgvs.assemblymapper.AssemblyMapper(hdp, assembly_name, alt_aln_method)
+evm = vvhgvs.assemblymapper.AssemblyMapper(hdp, assembly_name, alt_aln_method)
 hgvs_variant = hp.parse_hgvs_variant(variant)
 hgvs_genomic = evm.c_to_g(hgvs_variant)
 rts = evm.relevant_transcripts(hgvs_genomic)

@@ -5,37 +5,37 @@
 # The essential issue is that build_cigar_string overwrites cached
 # data.
 
-import hgvs.dataproviders.uta
-import hgvs.location
-import hgvs.posedit
-import hgvs.edit
-import hgvs.sequencevariant
-import hgvs.variantmapper
+import vvhgvs.dataproviders.uta
+import vvhgvs.location
+import vvhgvs.posedit
+import vvhgvs.edit
+import vvhgvs.sequencevariant
+import vvhgvs.variantmapper
 from support import CACHE
 
 def create_genomic_variant():
-    start = hgvs.location.SimplePosition(118898437)
-    end = hgvs.location.SimplePosition(118898437)
-    iv = hgvs.location.Interval(start=start, end=end)
-    edit = hgvs.edit.NARefAlt(ref='G', alt='T')
-    posedit = hgvs.posedit.PosEdit(pos=iv, edit=edit)
-    genomic_variant = hgvs.sequencevariant.SequenceVariant(ac='NC_000011.9', type='g', posedit=posedit, )
+    start = vvhgvs.location.SimplePosition(118898437)
+    end = vvhgvs.location.SimplePosition(118898437)
+    iv = vvhgvs.location.Interval(start=start, end=end)
+    edit = vvhgvs.edit.NARefAlt(ref='G', alt='T')
+    posedit = vvhgvs.posedit.PosEdit(pos=iv, edit=edit)
+    genomic_variant = vvhgvs.sequencevariant.SequenceVariant(ac='NC_000011.9', type='g', posedit=posedit, )
     return genomic_variant
 
 
 gvar = create_genomic_variant()
 
-hdp = hgvs.dataproviders.uta.connect(mode="run", cache=CACHE)
+hdp = vvhgvs.dataproviders.uta.connect(mode="run", cache=CACHE)
 
 print("build a variant mapper once for the given transcript: all okay")
-variantmapper = hgvs.variantmapper.VariantMapper(hdp)
+variantmapper = vvhgvs.variantmapper.VariantMapper(hdp)
 for _ in range(4):
     print(variantmapper.g_to_c(gvar, 'NM_001164277.1'))
 
 print("""build a variant mapper in each loop. Although this is wasteful, it
 should return consistent results. It doesn't.""")
 for _ in range(4):
-    variantmapper = hgvs.variantmapper.VariantMapper(hdp)
+    variantmapper = vvhgvs.variantmapper.VariantMapper(hdp)
     print(variantmapper.g_to_c(gvar, 'NM_001164277.1'))
 
 # As of 1b1d5ff268e3 (Feb 2015), one gets:

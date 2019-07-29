@@ -4,12 +4,12 @@ import itertools
 import re
 import unittest
 
-from hgvs.exceptions import HGVSDataNotAvailableError
-import hgvs.dataproviders.uta
-import hgvs.edit
-import hgvs.parser
-import hgvs.sequencevariant
-import hgvs.variantmapper
+from vvhgvs.exceptions import HGVSDataNotAvailableError
+import vvhgvs.dataproviders.uta
+import vvhgvs.edit
+import vvhgvs.parser
+import vvhgvs.sequencevariant
+import vvhgvs.variantmapper
 from six.moves import map
 
 
@@ -41,7 +41,7 @@ class CrossChecker(object):
     def crosscheck_variant_group(self, variants):
         """crosscheck a group of variants; returns None if successful, otherwise a message"""
 
-        assert all(isinstance(v, hgvs.sequencevariant.SequenceVariant) for v in variants)
+        assert all(isinstance(v, vvhgvs.sequencevariant.SequenceVariant) for v in variants)
 
         variants = sorted(variants, key=lambda v: v.type)
         binned_variants = {k: [] for k in "cgmnrp"}
@@ -80,7 +80,7 @@ class CrossChecker(object):
                 except HGVSDataNotAvailableError:
                     continue
                 r.posedit.uncertain = False
-                if isinstance(r.posedit.edit, hgvs.edit.AAFs):
+                if isinstance(r.posedit.edit, vvhgvs.edit.AAFs):
                     r.posedit.edit.length = None    # Clinvar doesn't have distance to Ter, so remove it
                 if r not in binned_variants["p"]:
                     return "c_to_p({c_var}): got {r}; expected on of {p_vars}".format(

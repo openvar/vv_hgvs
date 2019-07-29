@@ -32,10 +32,10 @@ NR_027676.1:n.3980del     non-coding                        non-coding transcrip
 Install hgvs
 @@@@@@@@@@@@
 
-For this demo, you'll obviously need `hgvs`.  In a reasonably modern
+For this demo, you'll obviously need `vvhgvs`.  In a reasonably modern
 environment, the following should suffice::
 
-  $ pip install hgvs
+  $ pip install vvhgvs
 
 More detailed installation instructions are in :doc:`installation`.
 
@@ -43,26 +43,26 @@ More detailed installation instructions are in :doc:`installation`.
 Start hgvs-shell
 @@@@@@@@@@@@@@@@
 
-The :mod:`hgvs` package includes an executable called ``hgvs-shell``,
-which sets up :mod:`hgvs` for you.  On the command line, type::
+The :mod:`vvhgvs` package includes an executable called ``hgvs-shell``,
+which sets up :mod:`vvhgvs` for you.  On the command line, type::
 
   $ hgvs-shell
 
 This is approximately the same thing as::
 
   $ IPython
-  >>> from hgvs.easy import *
+  >>> from vvhgvs.easy import *
 
-:mod:`hgvs.easy` connects to data sources and initializes commonly used
+:mod:`vvhgvs.easy` connects to data sources and initializes commonly used
 objects that provide most functionality.  
 
 .. note:: Variant validation, normalization, and projection require
 	  access to external data, specifically exon structures,
 	  transcript alignments, and protein accessions.  Right now,
 	  the only source of this data is via the UTA sister projects.
-	  When you import :mod:`hgvs.easy`, you will connect to
+	  When you import :mod:`vvhgvs.easy`, you will connect to
 	  publicly available data sources.  If you want more
-	  information on the architecture of :mod:`hgvs` and UTA, see
+	  information on the architecture of :mod:`vvhgvs` and UTA, see
 	  :doc:`intro`.  See :doc:`installation` for information about
 	  installing data sources locally for speed and privacy.
 
@@ -75,11 +75,11 @@ In the ``hgvs-shell``, do::
   >>> var_g = parse("NC_000017.11:g.43091687delC")
 
 .. note:: *All* functionality in :mod:`hgvs` is provided by Python
-	  classes.  :mod:`hgvs.easy` exposes common methods with
+	  classes.  :mod:`vvhgvs.easy` exposes common methods with
 	  functional forms also, which are used in this quick start
 	  guide.  For example, ``parse(...)`` above actually calls
 	  ```parser.parse(...)``, where ``parser`` is an instance of
-	  the :class:`hgvs.parser.Parser` class.
+	  the :class:`vvhgvs.parser.Parser` class.
 
 Parsing a variant results in objects that represent the variant. A
 SequenceVariant object is comprised of an accession (``ac``), an HGVS
@@ -89,7 +89,7 @@ changes (``posedit`` -- a POSition and EDIt).::
    >>> var_g
    SequenceVariant(ac=NC_000017.11, type=g, posedit=43091687del)
 
-The ``posedit`` is itself an object of the :class:`hgvs.posedit.PosEdit` class::
+The ``posedit`` is itself an object of the :class:`vvhgvs.posedit.PosEdit` class::
 
   >>> var_g.posedit
   PosEdit(pos=43091687, edit=del, uncertain=False)
@@ -115,7 +115,7 @@ And, in Python 3, stringification works in f-strings, like so::
 Validating and Normalizing Variants
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-`hgvs` provides functionality to validate and normalize variants::
+`vvhgvs` provides functionality to validate and normalize variants::
 
   >>> normalize(var_g)
   SequenceVariant(ac=NC_000017.11, type=g, posedit=43091688del)
@@ -128,15 +128,15 @@ Projecting variants between sequences
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 When two sequences have alignments available in , a variant may be
-"projected" from one sequence to the other.  ``hgvs`` supports
+"projected" from one sequence to the other.  ``vvhgvs`` supports
 projecting variants
 
   * from g to c, n
   * from c to g, n, p
   * from n to c, g
 
-The :class:`hgvs.assemblymapper.AssemblyMapper` class provides a
-high-level interface to variant projection. :mod:`hgvs.easy`
+The :class:`vvhgvs.assemblymapper.AssemblyMapper` class provides a
+high-level interface to variant projection. :mod:`vvhgvs.easy`
 initializes AssemblyMapper instances for GRCh37 and GRCh37 as ``am37``
 and ``am38`` respectively. For example::
 
@@ -160,7 +160,7 @@ to a protein sequnce using the ``t_to_p`` function.
   -> NM_007300.3:c.3844del (NP_009231.2:p.(Glu1282AsnfsTer25))
   -> NR_027676.1:n.3980del (non-coding)
 
-In ``hgvs``, the ``t`` type can be either ``c`` or ``n``.  Only
+In ``vvhgvs``, the ``t`` type can be either ``c`` or ``n``.  Only
 variants on coding sequences (``c.``) can be projected to a protein
 sequence.  As a special case, ``t_to_p`` returns "non-coding" when the
 input variant is on a non-coding sequence.

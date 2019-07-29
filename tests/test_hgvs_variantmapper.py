@@ -7,10 +7,10 @@ import unittest
 
 import pytest
 
-from hgvs.exceptions import HGVSError, HGVSInvalidVariantError
-import hgvs.dataproviders.uta
-import hgvs.parser
-import hgvs.variantmapper
+from vvhgvs.exceptions import HGVSError, HGVSInvalidVariantError
+import vvhgvs.dataproviders.uta
+import vvhgvs.parser
+import vvhgvs.variantmapper
 from support import CACHE
 
 
@@ -18,9 +18,9 @@ from support import CACHE
 class Test_VariantMapper_Exceptions(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
-        cls.vm = hgvs.variantmapper.VariantMapper(cls.hdp)
-        cls.hp = hgvs.parser.Parser()
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.vm = vvhgvs.variantmapper.VariantMapper(cls.hdp)
+        cls.hp = vvhgvs.parser.Parser()
 
     def test_gcrp_invalid_input_type(self):
         hgvs_g = "NC_000007.13:g.36561662C>T"
@@ -47,7 +47,7 @@ class Test_VariantMapper_Exceptions(unittest.TestCase):
                 func, args = cases[key]
                 var_result = func(*args)
                 failures.append(key)
-            except hgvs.exceptions.HGVSInvalidVariantError:
+            except vvhgvs.exceptions.HGVSInvalidVariantError:
                 pass
 
         self.assertFalse(failures, "conversions not failing: {}".format(failures))
@@ -55,7 +55,7 @@ class Test_VariantMapper_Exceptions(unittest.TestCase):
     def test_gc_invalid_input_nm_accession(self):
         hgvs_g = "NC_000007.13:g.36561662C>T"
         var_g = self.hp.parse_hgvs_variant(hgvs_g)
-        with self.assertRaises(hgvs.exceptions.HGVSError):
+        with self.assertRaises(vvhgvs.exceptions.HGVSError):
             var_p = self.vm.c_to_p(var_g, "NM_999999.1")
 
     def test_undefined_cds(self):
@@ -66,10 +66,10 @@ class Test_VariantMapper_Exceptions(unittest.TestCase):
         var_c = self.hp.parse_hgvs_variant(hgvs_c)
         tx_ac = var_n.ac
 
-        with self.assertRaises(hgvs.exceptions.HGVSUsageError):
+        with self.assertRaises(vvhgvs.exceptions.HGVSUsageError):
             var_c = self.vm.n_to_c(var_n)    # n_to_c: transcript is non-coding
 
-        with self.assertRaises(hgvs.exceptions.HGVSUsageError):
+        with self.assertRaises(vvhgvs.exceptions.HGVSUsageError):
             var_c = self.vm.c_to_n(var_c)    # c_to_n: var_c is bogus
 
     def test_map_var_of_unsupported_validation(self):
