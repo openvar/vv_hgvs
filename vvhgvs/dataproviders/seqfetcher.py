@@ -35,7 +35,7 @@ class SeqFetcher(object):
         seqrepo_dir = os.environ.get("HGVS_SEQREPO_DIR")
         if seqrepo_dir:
             from biocommons.seqrepo import SeqRepo
-            sr = SeqRepo(seqrepo_dir)
+            sr = SeqRepo(seqrepo_dir, check_same_thread=False)
 
             def _fetch_seq_seqrepo(ac, start_i=None, end_i=None):
                 return sr.fetch(ac, start_i, end_i)
