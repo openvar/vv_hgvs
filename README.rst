@@ -1,6 +1,12 @@
 *hgvs* - manipulate biological sequence variants according to Human Genome Variation Society recommendations
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+**NOTE** This is a fork of `biocommons/hgvs <https://github.com/biocommons/hgvs>`_ that uses the same mappers as version 1.1.3.
+It is designed to work with `VariantValidator <https://github.com/openvar/variantValidator>`_ and we do not recommend you use it for anything else. All other docs and
+information hasn't been changed from the original hgvs package.
+
+
+
 **Important:** biocommons packages (including hgvs) will begin phasing
 out support for Python 2.7 on Jan 1, 2019.  `More
 <https://groups.google.com/forum/#!topic/hgvs-discuss/iLUzjzoD-28>`__
