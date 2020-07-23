@@ -116,6 +116,8 @@ def connect(db_url=None, pooling=vvhgvs.global_config.uta.pooling, application_n
 
 class UTABase(Interface):
     required_version = "1.1"
+    # for the id quires we need at least uta 1.1 and vvta ver 0.6+ 
+    # but no way to specify simply, without breaking whole set on lower ver num
 
     _queries = {
         "acs_for_protein_md5":
@@ -129,6 +131,12 @@ class UTABase(Interface):
             select *
             from gene
             where hgnc=?
+            """,
+        "gene_info_by_id":
+        """
+            select *
+            from gene
+            where hgnc_id=?
             """,
 
     # TODO: reconcile tx_exons query and build_tx_cigar
@@ -146,6 +154,12 @@ class UTABase(Interface):
             select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
             from transcript T
             join exon_set ES on T.ac=ES.tx_ac where alt_aln_method != 'transcript' and hgnc=?
+            """,
+        "tx_for_gene_id":
+        """
+            select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
+            from transcript T
+            join exon_set ES on T.ac=ES.tx_ac where alt_aln_method != 'transcript' and hgnc_id=?
             """,
         "tx_for_region":
         """
@@ -258,6 +272,9 @@ class UTABase(Interface):
 
         """
         return self._fetchone(self._queries['gene_info'], [gene])
+    #same as above but by id not symbol
+    def get_gene_info_by_id(self, gene_id):
+        return self._fetchone(self._queries['gene_info_by_id'], [gene_id])
 
     def get_tx_exons(self, tx_ac, alt_ac, alt_aln_method):
         """
@@ -323,6 +340,9 @@ class UTABase(Interface):
         :type gene: str
         """
         return self._fetchall(self._queries['tx_for_gene'], [gene])
+    #same as above but by id not symbol
+    def get_tx_for_gene_id(self, gene_id):
+        return self._fetchall(self._queries['tx_for_gene_id'], [gene_id])
 
     def get_tx_for_region(self, alt_ac, alt_aln_method, start_i, end_i):
         """
