@@ -54,6 +54,11 @@ def _get_uta_db_url():
     if "_UTA_URL_KEY" in os.environ:
         url_key = os.environ["_UTA_URL_KEY"]
     else:
+        quit("""
+        V.V. usage can be quite heavy, variant validators "test_configuration.py" asserts that we 
+        should at least explicitly chose the location, therefore, for vvhgvs, disable silent public 
+        fallback, explicitly set a external url key if remote data is needed.
+        """)
         sdlc = _stage_from_version(vvhgvs.__version__)
         url_key = "public_{sdlc}".format(sdlc=sdlc)
     return vvhgvs.global_config['uta'][url_key]
