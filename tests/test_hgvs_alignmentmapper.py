@@ -16,14 +16,14 @@ from vvhgvs.alignmentmapper import AlignmentMapper
 from vvhgvs.enums import Datum
 from support import CACHE
 
-
+mode_txt =os.environ.get("HGVS_CACHE_MODE", None)
 @pytest.mark.quick
 class Test_AlignmentMapper(unittest.TestCase):
     ref = "GRCh37.p10"
 
     @classmethod
     def setUp(cls):
-        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
         cls.parser = vvhgvs.parser.Parser()
 
     def test_alignmentmapper_failures(self):

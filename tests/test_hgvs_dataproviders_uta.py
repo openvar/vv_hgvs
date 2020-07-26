@@ -17,6 +17,7 @@ import vvhgvs.sequencevariant
 from support import CACHE
 
 
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 class UTA_Base(object):
     def test_get_acs_for_protein_seq(self):
         exp = ["NP_001005405.1", "MD5_8fc09b1d9a38a8c55176a0fa922df227"]
@@ -45,6 +46,7 @@ class UTA_Base(object):
         self.assertEqual("VHL", gene_info["hgnc"])
         self.assertEqual("3p25.3", gene_info["maploc"])
         self.assertEqual(6, len(gene_info))
+
 
     def test_get_tx_exons(self):
         tx_exons = self.hdp.get_tx_exons("NM_000551.3", "NC_000003.11", "splign")
@@ -93,14 +95,14 @@ class UTA_Base(object):
 class Test_hgvs_dataproviders_uta_UTA_default(unittest.TestCase, UTA_Base):
     @classmethod
     def setUpClass(cls):
-        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
 
 
 class Test_hgvs_dataproviders_uta_UTA_default_with_pooling(unittest.TestCase, UTA_Base):
     @classmethod
     def setUpClass(cls):
         cls.hdp = vvhgvs.dataproviders.uta.connect(
-            pooling=True, mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+            pooling=True, mode=mode_txt, cache=CACHE)
 
 
 class TestUTACache(Test_hgvs_dataproviders_uta_UTA_default):

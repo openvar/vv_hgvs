@@ -26,9 +26,9 @@ def read_tests(fn):
         dt, lt, var, exp = line.split()
         yield {"disc_type": dt, "loc_type": lt, "variant": var, "expected": exp}
 
-
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 hp = vvhgvs.parser.Parser()
-hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
 # TODO: Use variantmapper instead of assemblymapper
 am38 = vvhgvs.assemblymapper.AssemblyMapper(hdp, assembly_name='GRCh38', normalize=False)
 

@@ -10,8 +10,11 @@ import pytest
 import vvhgvs
 import vvhgvs.sequencevariant
 import vvhgvs.parser
+import vvhgvs.dataproviders
+import vvhgvs.dataproviders.uta
 from support import CACHE
 
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 
 @pytest.mark.quick
 @pytest.mark.models
@@ -22,7 +25,7 @@ class Test_SequenceVariant(unittest.TestCase):
 
     def test_fill_ref(self):
         hp = vvhgvs.parser.Parser()
-        hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
 
         # fill reference for sequence variants
         var = hp.parse_hgvs_variant("NM_001166478.1:c.31_32del").fill_ref(hdp)

@@ -14,12 +14,12 @@ import vvhgvs.variantmapper
 import vvhgvs.assemblymapper
 from support import CACHE
 
-
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 @pytest.mark.quick
 class Test_VariantMapper(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
         cls.am = vvhgvs.assemblymapper.AssemblyMapper(cls.hdp)
         cls.am37 = vvhgvs.assemblymapper.AssemblyMapper(cls.hdp, assembly_name="GRCh37")
         cls.hp = vvhgvs.parser.Parser()
@@ -398,7 +398,7 @@ class Test_RefReplacement(unittest.TestCase):
             rec["pv"] = {x: cls.hp.parse_hgvs_variant(rec[x]) for x in "cgn"}
             return rec
 
-        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
         cls.am = vvhgvs.assemblymapper.AssemblyMapper(
             cls.hdp, replace_reference=True, assembly_name="GRCh37", alt_aln_method="splign")
         cls.hp = vvhgvs.parser.Parser()
@@ -421,7 +421,7 @@ class Test_RefReplacement(unittest.TestCase):
 class Test_AssemblyMapper(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
         cls.hp = vvhgvs.parser.Parser()
         cls.am = vvhgvs.assemblymapper.AssemblyMapper(hdp, assembly_name="GRCh37", alt_aln_method="splign")
 

@@ -13,12 +13,13 @@ import vvhgvs.parser
 import vvhgvs.variantmapper
 from support import CACHE
 
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 
 @pytest.mark.quick
 class Test_VariantMapper_Exceptions(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
         cls.vm = vvhgvs.variantmapper.VariantMapper(cls.hdp)
         cls.hp = vvhgvs.parser.Parser()
 
