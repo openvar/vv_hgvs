@@ -16,7 +16,6 @@ import vvhgvs.variantmapper
 import vvhgvs.sequencevariant
 from support import CACHE
 
-
 mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 class UTA_Base(object):
     def test_get_acs_for_protein_seq(self):
@@ -45,7 +44,15 @@ class UTA_Base(object):
         gene_info = self.hdp.get_gene_info("VHL")
         self.assertEqual("VHL", gene_info["hgnc"])
         self.assertEqual("3p25.3", gene_info["maploc"])
-        self.assertEqual(6, len(gene_info))
+        assert len(gene_info) in [6,7] #cope with gene id in newer databases
+    def test_get_gene_info_by_id(self):
+        gene_info_id = self.hdp.get_gene_info_by_id("HGNC:12687")
+        gene_info_symbol = self.hdp.get_gene_info("VHL")
+        self.assertEqual(gene_info_id,gene_info_symbol)
+        self.assertEqual("VHL", gene_info_id["hgnc"])
+        self.assertEqual("HGNC:12687", gene_info_id["hgnc_id"])
+        self.assertEqual("3p25.3", gene_info_id["maploc"])
+        self.assertEqual(7, len(gene_info_id))
 
 
     def test_get_tx_exons(self):
@@ -73,14 +80,17 @@ class UTA_Base(object):
         self.assertEqual(0, len(tig))
 
     def test_get_tx_info(self):
-        tx_info = self.hdp.get_tx_info("NM_000051.3", "AC_000143.1", "splign")
+        #replace AC_000143.1 (HuRef-removed) with NC_000011.10 (GRCh38)
+        tx_info = self.hdp.get_tx_info("NM_000051.3", "NC_000011.10", "splign")
         self.assertEqual(385, tx_info["cds_start_i"])
         self.assertEqual(9556, tx_info["cds_end_i"])
-        self.assertEqual("AC_000143.1", tx_info["alt_ac"])
+        self.assertEqual("NC_000011.10", tx_info["alt_ac"])
 
     def test_get_tx_info_invalid_tx_ac(self):
+        #replace AC_000143.1 (HuRef-removed) with NC_000011.10 (GRCh38)
+        # we want to test a non-existent transcript in an existing chr
         with self.assertRaises(HGVSDataNotAvailableError):
-            self.hdp.get_tx_info("NM_999999.9", "AC_000143.1", "splign")
+            self.hdp.get_tx_info("NM_999999.9", "NC_000011.10", "splign")
 
     def test_get_tx_mapping_options(self):
         tx_mapping_options = self.hdp.get_tx_mapping_options("NM_000551.3")
