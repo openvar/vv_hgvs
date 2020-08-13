@@ -103,9 +103,7 @@ def connect(db_url=None, pooling=vvhgvs.global_config.uta.pooling, application_n
         db_url = _get_uta_db_url()
 
     url = _parse_url(db_url)
-    if url.scheme == 'sqlite':
-        conn = UTA_sqlite(url, mode, cache)
-    elif url.scheme == 'postgresql':
+    if url.scheme == 'postgresql':
         conn = UTA_postgresql(url=url, pooling=pooling, application_name=application_name, mode=mode, cache=cache)
     else:
         # fell through connection scheme cases
@@ -124,19 +122,19 @@ class UTABase(Interface):
         """
             select ac
             from seq_anno
-            where seq_id=?
+            where seq_id=%s
             """,
         "gene_info":
         """
             select *
             from gene
-            where hgnc=?
+            where hgnc=%s
             """,
         "gene_info_by_id":
         """
             select *
             from gene
-            where hgnc_id=?
+            where hgnc_id=%s
             """,
 
     # TODO: reconcile tx_exons query and build_tx_cigar
@@ -146,64 +144,64 @@ class UTABase(Interface):
         """
             select *
             from tx_exon_aln_v
-            where tx_ac=? and alt_ac=? and alt_aln_method=?
+            where tx_ac=%s and alt_ac=%s and alt_aln_method=%s
             order by alt_start_i
             """,
         "tx_for_gene":
         """
             select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
             from transcript T
-            join exon_set ES on T.ac=ES.tx_ac where alt_aln_method != 'transcript' and hgnc=?
+            join exon_set ES on T.ac=ES.tx_ac where alt_aln_method != 'transcript' and hgnc=%s
             """,
         "tx_for_gene_id":
         """
             select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
             from transcript T
-            join exon_set ES on T.ac=ES.tx_ac where alt_aln_method != 'transcript' and hgnc_id=?
+            join exon_set ES on T.ac=ES.tx_ac where alt_aln_method != 'transcript' and hgnc_id=%s
             """,
         "tx_for_region":
         """
             select tx_ac,alt_ac,alt_strand,alt_aln_method,min(start_i) as start_i,max(end_i) as end_i
             from exon_set ES
             join exon E on ES.exon_set_id=E.exon_set_id 
-            where alt_ac=? and alt_aln_method=?
+            where alt_ac=%s and alt_aln_method=%s
             group by tx_ac,alt_ac,alt_strand,alt_aln_method
-            having min(start_i) < ? and ? <= max(end_i)
+            having min(start_i) < %s and %s <= max(end_i)
             """,
         "tx_identity_info":
         """
             select distinct(tx_ac), alt_ac, alt_aln_method, cds_start_i, cds_end_i, lengths, hgnc
             from tx_def_summary_v
-            where tx_ac=?
+            where tx_ac=%s
             """,
         "tx_info":
         """
             select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
             from transcript T
             join exon_set ES on T.ac=ES.tx_ac
-            where tx_ac=? and alt_ac=? and alt_aln_method=?
+            where tx_ac=%s and alt_ac=%s and alt_aln_method=%s
             """,
         "tx_mapping_options":
         """
             select distinct tx_ac,alt_ac,alt_aln_method
-            from tx_exon_aln_v where tx_ac=? and exon_aln_id is not NULL
+            from tx_exon_aln_v where tx_ac=%s and exon_aln_id is not NULL
             """,
         "tx_seq":
         """
             select seq
             from seq S
             join seq_anno SA on S.seq_id=SA.seq_id
-            where ac=?
+            where ac=%s
             """,
         "tx_similar":
         """
             select *
             from tx_similarity_v
-            where tx_ac1 = ?
+            where tx_ac1 = %s
             """,
         "tx_to_pro":
         """
-            select * from associated_accessions where tx_ac = ? order by pro_ac desc
+            select * from associated_accessions where tx_ac = %s order by pro_ac desc
             """,
     }
 
@@ -529,9 +527,6 @@ class UTA_postgresql(UTABase):
             self._conn.autocommit = True
 
         self._ensure_schema_exists()
-
-        # remap sqlite's ? placeholders to psycopg2's %s
-        self._queries = {k: v.replace('?', '%s') for k, v in six.iteritems(self._queries)}
 
     def _ensure_schema_exists(self):
         # N.B. On AWS RDS, information_schema.schemata always returns zero rows
