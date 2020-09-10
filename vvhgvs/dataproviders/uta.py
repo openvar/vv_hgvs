@@ -113,7 +113,7 @@ def connect(db_url=None, pooling=vvhgvs.global_config.uta.pooling, application_n
 
 
 class UTABase(Interface):
-    required_version = "0.7"
+    required_version = "0.8"
     version_type = 'matview_version'
     # for the id quires we need at least uta 1.1 and vvta ver 0.6+ 
     # but no way to specify simply, without breaking whole set on lower ver num
@@ -141,10 +141,16 @@ class UTABase(Interface):
             from current_valid_mapped_transcript_spans_mv 
             where alt_ac=%s and alt_aln_method=%s and start_i < %s and %s <= end_i
             """,
+        "tx_limits":"""
+            SELECT ac, cds_start_i, cds_end_i, length, hgnc
+            FROM transcript_lengths_mv
+            WHERE ac=%s
+            """,
+        # compat query for old tx_identity_info will work with numeric indexing
         "tx_identity_info":"""
-            select distinct(tx_ac), alt_ac, alt_aln_method, cds_start_i, cds_end_i, lengths, hgnc
-            from tx_def_summary_mv
-            where tx_ac=%s
+            SELECT ac as tx_ac, NULL AS alt_ac, NULL AS alt_aln_method, cds_start_i, cds_end_i, ARRAY[length] AS lengths, hgnc
+            FROM transcript_lengths_mv
+            WHERE ac=%s
             """,
         "tx_info":"""
             select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
@@ -329,7 +335,18 @@ class UTABase(Interface):
         if len(rows) == 0:
             raise HGVSDataNotAvailableError("No transcript definition for (tx_ac={tx_ac})".format(tx_ac=tx_ac))
         return rows[0]
-
+    def get_tx_limits(self, tx_ac):
+        """returns gene symbol and non alignment derived transcript features associated with a single transcript.
+        same as get_tx_identity_info but,
+        does not generate dummy values for alt_ac and method 
+        does not wrap transcript length as lengths in array
+        ac,cds_start_i,cds_end_i,length,hgnc
+        """
+        rows = self._fetchall(self._queries['tx_limits'], [tx_ac])
+        if len(rows) == 0:
+            raise HGVSDataNotAvailableError("No transcript definition for (tx_ac={tx_ac})".format(tx_ac=tx_ac))
+        return rows[0]
+       
     def get_tx_info(self, tx_ac, alt_ac, alt_aln_method):
         """return a single transcript info for supplied accession (tx_ac, alt_ac, alt_aln_method), or None if not found
 
