@@ -113,59 +113,11 @@ def connect(db_url=None, pooling=vvhgvs.global_config.uta.pooling, application_n
 
 
 class UTABase(Interface):
-    required_version = "1.1"
+    required_version = "0.7"
+    version_type = 'matview_version'
     # for the id quires we need at least uta 1.1 and vvta ver 0.6+ 
     # but no way to specify simply, without breaking whole set on lower ver num
     _queries = {
-        "acs_for_protein_md5":"select ac from seq_anno where seq_id=%s",
-        "gene_info":"select * from gene where hgnc=%s",
-        "gene_info_by_id":"select * from gene where hgnc_id=%s",
-    # TODO: reconcile tx_exons query and build_tx_cigar
-    # built_tx_cigar says it expects exons in transcript order, but this is genomic order.
-        "tx_exons":"""
-            select * from tx_exon_aln_v where tx_ac=%s and alt_ac=%s and alt_aln_method=%s
-            order by alt_start_i
-            """,
-        "tx_for_gene": """
-            select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
-            from transcript T
-            join exon_set ES on T.ac=ES.tx_ac where alt_aln_method != 'transcript' and hgnc=%s
-            """,
-        "tx_for_gene_id":"""
-            select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
-            from transcript T
-            join exon_set ES on T.ac=ES.tx_ac where alt_aln_method != 'transcript' and hgnc_id=%s
-            """,
-        "tx_for_region":"""
-            select tx_ac,alt_ac,alt_strand,alt_aln_method,min(start_i) as start_i,max(end_i) as end_i
-            from exon_set ES
-            join exon E on ES.exon_set_id=E.exon_set_id 
-            where alt_ac=%s and alt_aln_method=%s
-            group by tx_ac,alt_ac,alt_strand,alt_aln_method
-            having min(start_i) < %s and %s <= max(end_i)
-            """,
-        "tx_identity_info": """
-            select distinct(tx_ac), alt_ac, alt_aln_method, cds_start_i, cds_end_i, lengths, hgnc
-            from tx_def_summary_v
-            where tx_ac=%s
-            """,
-        "tx_info":"""
-            select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
-            from transcript T
-            join exon_set ES on T.ac=ES.tx_ac
-            where tx_ac=%s and alt_ac=%s and alt_aln_method=%s
-            """,
-        "tx_mapping_options":
-        """
-            select distinct tx_ac,alt_ac,alt_aln_method
-            from tx_exon_aln_v where tx_ac=%s and exon_aln_id is not NULL
-            """,
-        "tx_seq":"select seq from seq S join seq_anno SA on S.seq_id=SA.seq_id where ac=%s",
-        "tx_similar":"select * from tx_similarity_v where tx_ac1 = %s",
-        "tx_to_pro":"select * from associated_accessions where tx_ac = %s order by pro_ac desc",
-    }
-
-    _new_queries = {
         "acs_for_protein_md5":"select ac from seq_anno where seq_id=%s",
         "gene_info":"select * from gene where hgnc=%s",
         "gene_info_by_id":"select * from gene where hgnc_id=%s",
@@ -213,9 +165,6 @@ class UTABase(Interface):
         self.seqfetcher = SeqFetcher()
         if mode != 'run':
             self._connect()
-            ver = self._fetchone("select * from meta where key = 'matview_version'")['value']
-            if float(ver) >= 0.7:
-                self._queries =self._new_queries
         super(UTABase, self).__init__(mode, cache)
 
     def __str__(self):
@@ -244,7 +193,7 @@ class UTABase(Interface):
         return self.url.schema
 
     def schema_version(self):
-        return self._fetchone("select * from meta where key = 'schema_version'")['value']
+        return self._fetchone(f"select * from meta where key = '{self.version_type}'")['value']
 
     def get_seq(self, ac, start_i=None, end_i=None):
         return self.seqfetcher.fetch_seq(ac, start_i, end_i)
