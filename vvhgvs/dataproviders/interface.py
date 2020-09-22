@@ -96,8 +96,11 @@ class Interface(six.with_metaclass(abc.ABCMeta, object)):
             maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_tx_for_gene_id)
         self.get_gene_info_by_id = lru_cache(
             maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_gene_info_by_id)
-        self.get_tx_limits  = lru_cache(
+        self.get_tx_limits = lru_cache(
             maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_tx_limits)
+        self.get_agg_exon_aln = lru_cache(
+            maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_agg_exon_aln)
+
 
         def _split_version_string(v):
             versions = list(map(int, v.split(".")))

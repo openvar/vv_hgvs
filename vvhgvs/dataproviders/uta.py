@@ -113,7 +113,7 @@ def connect(db_url=None, pooling=vvhgvs.global_config.uta.pooling, application_n
 
 
 class UTABase(Interface):
-    required_version = "0.8"
+    required_version = "0.9"
     version_type = 'matview_version'
     # for the id quires we need at least uta 1.1 and vvta ver 0.6+ 
     # but no way to specify simply, without breaking whole set on lower ver num
@@ -128,6 +128,19 @@ class UTABase(Interface):
             from tx_exon_aln_mv where tx_ac=%s and alt_ac=%s and alt_aln_method=%s 
             order by alt_start_i
             """,
+    # This query should replace tx_exons in all new code, it is pre checked and should be a faster lookup vs
+    # the list of results from tx_exons, at least for things like strand, the arrays are transcript order.
+    # This contains extra details not used in the uta so that caching will prevent repeated lookups when 
+    # this data is used by variant validator.
+        "agg_exon_aln":"""
+            SELECT 
+            alt_strand,mapped_start,not_quite_cigar,mapped_end,
+            cds_start_i, cds_end_i,
+            transcript_exon_start_end,mapped_exon_start_end
+            FROM full_tx_aln_w_nq_cigar_mv
+            WHERE tx_ac=%s and alt_ac=%s and alt_aln_method=%s
+            """,
+
         "tx_for_gene":"""
             select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
             from current_valid_mapped_transcript_per_gene_mv where hgnc=%s
@@ -290,6 +303,16 @@ class UTABase(Interface):
                                             "(tx_ac={tx_ac},alt_ac={alt_ac},alt_aln_method={alt_aln_method})".format(
                                                 tx_ac=tx_ac, alt_ac=alt_ac, alt_aln_method=alt_aln_method))
         return rows
+
+    def get_agg_exon_aln(self, tx_ac, alt_ac, alt_aln_method):
+        """
+        return transcript alignment details for supplied (tx_ac, alt_ac, alt_aln_method), or None if not found
+        pre-filtered for start =0 and contiguousness 
+        return order = strand,cigar start offset, not quite cigar format alignment,mapped end pos,
+        cds start,cds end,exon pos sets, exon mapping pos sets
+        """
+        return self._fetchone(self._queries['agg_exon_aln'], [tx_ac, alt_ac, alt_aln_method])
+
 
     def get_tx_for_gene(self, gene):
         """
