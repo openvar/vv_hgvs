@@ -27,7 +27,9 @@ class UTA_Base(object):
         """
 
         s = re.sub(r"\s+", "", s.upper())
-        self.assertEqual(sorted(self.hdp.get_acs_for_protein_seq(s)), sorted(exp))
+        curr_accs = self.hdp.get_acs_for_protein_seq(s)
+        for prot_ac in exp:
+            assert prot_ac in curr_accs
 
         exp = ["NP_071928.2", "MD5_ffb0d4adbd5e0b5d71678228b3696984"]
         s = """
@@ -38,7 +40,9 @@ class UTA_Base(object):
         """
 
         s = re.sub(r"\s+", "", s.upper())
-        self.assertEqual(sorted(self.hdp.get_acs_for_protein_seq(s)), sorted(exp))
+        curr_accs = self.hdp.get_acs_for_protein_seq(s)
+        for prot_ac in exp:
+            assert prot_ac in curr_accs
 
     def test_get_gene_info(self):
         gene_info = self.hdp.get_gene_info("VHL")
@@ -72,14 +76,14 @@ class UTA_Base(object):
             self.hdp.get_tx_exons("NM_000551.3", "NC_000999.9", "best")
 
     def test_get_tx_for_gene(self):
-        tig = self.hdp.get_tx_for_gene("VHL")
-        self.assertEqual(14, len(tig))
+        tig_id = self.hdp.get_tx_for_gene("VHL")
+        assert(len(tig_id)> 14)
     def test_get_tx_for_gene_id(self):
         tig_symbol = self.hdp.get_tx_for_gene("VHL")
         tig_id = self.hdp.get_tx_for_gene_id("HGNC:12687")
         for id_tx_set in tig_id:
             assert id_tx_set in tig_symbol
-        self.assertEqual(14, len(tig_id))
+        assert(len(tig_id)> 14)
 
     def test_get_tx_for_gene_invalid_gene(self):
         tig = self.hdp.get_tx_for_gene("GENE")
