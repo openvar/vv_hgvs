@@ -41,7 +41,7 @@ class Test_VariantMapper(unittest.TestCase):
             self.am.c_to_p(self.hp.parse_hgvs_variant("ENSP00000369497.3:c.7790delAAG"))
 
         hgvs_c_37 = "ENST00000380152.3:c.7791A>G"
-        hgvs_c_38 = "ENST00000380152.7:c.7791A>G"
+        hgvs_c_38 = "ENST00000380152.8:c.7791A>G"
         hgvs_p = "ENSP00000369497.3:p.(Lys2597=)"
 
         var_c_37 = self.hp.parse_hgvs_variant(hgvs_c_37)
@@ -65,16 +65,17 @@ class Test_VariantMapper(unittest.TestCase):
         self.assertEqual(str(var_p_38), hgvs_p)
 
         hgvs_c_37 = "ENST00000304636.3:c.2490_2516del"
-        hgvs_c_38 = "ENST00000304636.8:c.2490_2516del"
-        hgvs_p = "ENSP00000304408.3:p.(Glu832_Gly840del)"
+        hgvs_c_38 = "ENST00000304636.9:c.2490_2516del"
+        hgvs_p37 = "ENSP00000304408.3:p.(Glu832_Gly840del)"
+        hgvs_p38 = "ENSP00000304408.4:p.(Glu832_Gly840del)"
 
         var_c_37 = self.hp.parse_hgvs_variant(hgvs_c_37)
         var_c_38 = self.hp.parse_hgvs_variant(hgvs_c_38)
         var_p_37 = self.am.c_to_p(var_c_37)
         var_p_38 = self.am.c_to_p(var_c_38)
 
-        self.assertEqual(str(var_p_37), hgvs_p)
-        self.assertEqual(str(var_p_38), hgvs_p)
+        self.assertEqual(str(var_p_37), hgvs_p37)
+        self.assertEqual(str(var_p_38), hgvs_p38)
 
         hgvs_c_37 = "ENST00000511181.1:c.376="
         hgvs_c_38 = "ENST00000511181.5:c.376="
@@ -518,7 +519,7 @@ class Test_AssemblyMapper(unittest.TestCase):
 
     def test_t_to_p(self):
         #assert "non-coding" == str(self.am.t_to_p(self.hp.parse("NR_027676.1:n.3980del")))
-        assert "ENSP00000369497.3:p.(Lys2597=)" == str(self.am.t_to_p(self.hp.parse("ENST00000380152.7:c.7791A>G")))
+        assert "ENSP00000369497.3:p.(Lys2597=)" == str(self.am.t_to_p(self.hp.parse("ENST00000380152.8:c.7791A>G")))
 
 
 
