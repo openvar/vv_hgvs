@@ -57,7 +57,14 @@ class UTA_Base(object):
         self.assertEqual("HGNC:12687", gene_info_id["hgnc_id"])
         self.assertEqual("3p25.3", gene_info_id["maploc"])
         self.assertEqual(7, len(gene_info_id))
-
+    def test_get_gene_info_by_alias(self):
+        # alias is actually historic symbol in new data
+        gene_info = self.hdp.get_gene_info_by_alias("VHLP")
+        gene_info = gene_info[0]
+        self.assertEqual("VHLL", gene_info["hgnc"])
+        self.assertEqual('HGNC:30666',gene_info["hgnc_id"])
+        self.assertEqual("1q22", gene_info["maploc"])
+        self.assertEqual(7, len(gene_info))
 
     def test_get_tx_exons(self):
         tx_exons = self.hdp.get_tx_exons("NM_000551.3", "NC_000003.11", "splign")
