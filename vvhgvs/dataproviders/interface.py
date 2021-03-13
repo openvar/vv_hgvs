@@ -96,6 +96,8 @@ class Interface(six.with_metaclass(abc.ABCMeta, object)):
             maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_tx_for_gene_id)
         self.get_gene_info_by_id = lru_cache(
             maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_gene_info_by_id)
+        self.get_gene_info_by_alias = lru_cache(
+            maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_gene_info_by_alias)
         self.get_tx_limits = lru_cache(
             maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_tx_limits)
         self.get_agg_exon_aln = lru_cache(
@@ -148,6 +150,10 @@ class Interface(six.with_metaclass(abc.ABCMeta, object)):
 
     @abc.abstractmethod
     def get_gene_info_by_id(self, gene):
+        pass
+
+    @abc.abstractmethod
+    def get_gene_info_by_alias(self, alias):
         pass
 
     @abc.abstractmethod

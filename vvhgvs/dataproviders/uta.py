@@ -121,6 +121,21 @@ class UTABase(Interface):
         "acs_for_protein_md5":"select ac from seq_anno where seq_id=%s",
         "gene_info":"select * from gene where hgnc=%s",
         "gene_info_by_id":"select * from gene where hgnc_id=%s",
+        # to get alias (or prev symbol from alias column) use LIKE for
+        # now.  'SIMILAR TO' tests slower, and like regex it has
+        # safety issues "= ANY (string_to_array(aliases,','))" is the
+        # same, if a little slower. If we split first and store as
+        # array is 1/4 quicker, and does not have the problem of
+        # having to repeat the input
+        'gene_info_by_alias_symbol':'''
+            SELECT *
+            FROM gene
+            WHERE
+                aliases = %s
+                OR aliases LIKE %s || ',%%'
+                OR aliases LIKE '%%,' || %s || ',%%'
+                OR aliases LIKE '%%,' || %s
+            ''',
     # TODO: reconcile tx_exons query and build_tx_cigar
     # built_tx_cigar says it expects exons in transcript order, but this is genomic order.
         "tx_exons":"""
@@ -247,6 +262,11 @@ class UTABase(Interface):
     #same as above but by id not symbol
     def get_gene_info_by_id(self, gene_id):
         return self._fetchone(self._queries['gene_info_by_id'], [gene_id])
+    def get_gene_info_by_alias(self, gene_alias):
+        return self._fetchall(
+                self._queries['gene_info_by_alias_symbol'],
+                [gene_alias,gene_alias,gene_alias,gene_alias]
+                )
 
     def get_tx_exons(self, tx_ac, alt_ac, alt_aln_method):
         """
