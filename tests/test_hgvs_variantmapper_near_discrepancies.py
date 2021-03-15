@@ -11,6 +11,9 @@ import vvhgvs.parser
 import vvhgvs.assemblymapper
 from support import CACHE
 
+# 14 tests disabled due to revert of partly fixed gap issues, variant
+# validator handles this for now so if you intend to fix both need to
+# change at once
 tests_fn = "tests/data/proj-near-disc.tsv"
 
 
