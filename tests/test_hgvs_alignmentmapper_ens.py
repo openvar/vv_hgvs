@@ -28,28 +28,28 @@ class Test_AlignmentMapper(unittest.TestCase):
 
     def test_alignmentmapper_failures(self):
         with self.assertRaises(HGVSDataNotAvailableError):
-            AlignmentMapper(self.hdp, tx_ac="bogus", alt_ac="NM_033089.6", alt_aln_method="splign")
+            AlignmentMapper(self.hdp, tx_ac="bogus", alt_ac="ENST00000500893.3", alt_aln_method="genebuild")
         with self.assertRaises(HGVSDataNotAvailableError):
-            AlignmentMapper(self.hdp, tx_ac="bogus", alt_ac="NM_033089.6", alt_aln_method="transcript")
+            AlignmentMapper(self.hdp, tx_ac="bogus", alt_ac="ENST00000500893.3", alt_aln_method="transcript")
         with self.assertRaises(HGVSDataNotAvailableError):
-            AlignmentMapper(self.hdp, tx_ac="NM_033089.6", alt_ac="bogus", alt_aln_method="splign")
+            AlignmentMapper(self.hdp, tx_ac="ENST00000500893.3", alt_ac="bogus", alt_aln_method="genebuild")
         with self.assertRaises(HGVSDataNotAvailableError):
-            AlignmentMapper(self.hdp, tx_ac="NM_000051.3", alt_ac="NC_000011.9", alt_aln_method="bogus")
+            AlignmentMapper(self.hdp, tx_ac="ENST00000452508.6", alt_ac="NC_000011.9", alt_aln_method="bogus")
         with self.assertRaises(HGVSInvalidIntervalError):
-            AlignmentMapper(self.hdp, 'NM_000348.3', 'NC_000002.11', 'splign').n_to_g(
+            AlignmentMapper(self.hdp, 'ENST00000622030.2', 'NC_000002.12', 'genebuild').n_to_g(
                 self.parser.parse_n_interval("-1"))
         with self.assertRaises(HGVSInvalidIntervalError):
-            AlignmentMapper(self.hdp, 'NM_000348.3', 'NC_000002.11', 'splign').n_to_c(
+            AlignmentMapper(self.hdp, 'ENST00000622030.2', 'NC_000002.12', 'genebuild').n_to_c(
                 self.parser.parse_n_interval("-1"))
         with self.assertRaises(HGVSInvalidIntervalError):
-            AlignmentMapper(self.hdp, 'NM_000348.3', 'NC_000002.11', 'splign').c_to_n(
+            AlignmentMapper(self.hdp, 'ENST00000622030.2', 'NC_000002.12', 'genebuild').c_to_n(
                 self.parser.parse_c_interval("99999"))
 
     def test_alignmentmapper_AlignmentMapper_LCE3C_uncertain(self):
         """Use NM_178434.2 tests to test mapping with uncertain positions"""
-        tx_ac = "NM_178434.2"
-        alt_ac = "NC_000001.10"
-        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="splign")
+        tx_ac = "ENST00000333881.3"
+        alt_ac = "NC_000001.11"
+        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="genebuild")
         parser = vvhgvs.parser.Parser()
         test_cases = [
         # ? is not yet supported
@@ -58,11 +58,11 @@ class Test_AlignmentMapper(unittest.TestCase):
         ]
         self.run_cases(tm, test_cases)
 
-    def test_alignmentmapper_AlignmentMapper_LCE3C(self):
+    def test_alignmentmapper_AlignmentMapper_LCE3C_GRCh37(self):
         """NM_178434.2: LCE3C single exon, strand = +1, all coordinate input/output are in HGVS"""
-        tx_ac = "NM_178434.2"
+        tx_ac = "ENST00000333881.3"
         alt_ac = "NC_000001.10"
-        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="splign")
+        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="genebuild")
         parser = vvhgvs.parser.Parser()
         test_cases = [
         # 5'
@@ -111,11 +111,63 @@ class Test_AlignmentMapper(unittest.TestCase):
         ]
         self.run_cases(tm, test_cases)
 
-    def test_alignmentmapper_AlignmentMapper_HIST3H2A(self):
+    def test_alignmentmapper_AlignmentMapper_LCE3C_GRCh38(self):
+        """NM_178434.2: LCE3C single exon, strand = +1, all coordinate input/output are in HGVS"""
+        tx_ac = "ENST00000333881.3"
+        alt_ac = "NC_000001.11"
+        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="genebuild")
+        parser = vvhgvs.parser.Parser()
+        test_cases = [
+        # 5'
+            {
+                "g": parser.parse_g_interval('152600662'),#"152573138"),
+                "n": parser.parse_n_interval("1"),
+                "c": parser.parse_c_interval("-70")
+            },
+            {
+                "g": parser.parse_g_interval('152600664'),#"152573140"),
+                "n": parser.parse_n_interval("3"),
+                "c": parser.parse_c_interval("-68")
+            },
+        # cds
+            {
+                "g": parser.parse_g_interval('152600731'),#"152573207"),
+                "n": parser.parse_n_interval("70"),
+                "c": parser.parse_c_interval("-1")
+            },
+            {
+                "g": parser.parse_g_interval('152600732'),#"152573208"),
+                "n": parser.parse_n_interval("71"),
+                "c": parser.parse_c_interval("1")
+            },
+        # 3'
+            {
+                "g": parser.parse_g_interval('152601016'),#"152573492"),
+                "n": parser.parse_n_interval("355"),
+                "c": parser.parse_c_interval("285")
+            },
+            {
+                "g": parser.parse_g_interval('152601017'),#"152573493"),
+                "n": parser.parse_n_interval("356"),
+                "c": parser.parse_c_interval("*1")
+            },
+            {
+                "g": parser.parse_g_interval('152601084'),#"152573560"),
+                "n": parser.parse_n_interval("423"),
+                "c": parser.parse_c_interval("*68")
+            },
+            {
+                "g": parser.parse_g_interval('152601086'),#"152573562"),
+                "n": parser.parse_n_interval("425"),
+                "c": parser.parse_c_interval("*70")
+            },
+        ]
+        self.run_cases(tm, test_cases)
+    def test_alignmentmapper_AlignmentMapper_HIST3H2A_GRCh37(self):
         """NM_033445.2: LCE3C single exon, strand = -1, all coordinate input/output are in HGVS"""
-        tx_ac = "NM_033445.2"
+        tx_ac = "ENST00000366695.2"
         alt_ac = "NC_000001.10"
-        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="splign")
+        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="genebuild")
         parser = vvhgvs.parser.Parser()
         test_cases = [
         # 3'
@@ -164,11 +216,64 @@ class Test_AlignmentMapper(unittest.TestCase):
         ]
         self.run_cases(tm, test_cases)
 
-    def test_alignmentmapper_AlignmentMapper_LCE2B(self):
+    def test_alignmentmapper_AlignmentMapper_HIST3H2A_GRCh38(self):
+        """NM_033445.2: LCE3C single exon, strand = -1, all coordinate input/output are in HGVS"""
+        tx_ac = "ENST00000366695.3"# +14 3'
+        alt_ac = "NC_000001.11"
+        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="genebuild")
+        parser = vvhgvs.parser.Parser()
+        test_cases = [
+        # 3'
+            {
+                "g": parser.parse_g_interval('228457859'),#"228645560"),
+                "n": parser.parse_n_interval("15"),
+                "c": parser.parse_c_interval("-42")
+            },
+            {
+                "g": parser.parse_g_interval('228457857'),#"228645558"),
+                "n": parser.parse_n_interval("17"),
+                "c": parser.parse_c_interval("-40")
+            },
+        # cds
+            {
+                "g": parser.parse_g_interval('228457818'),#"228645519"),
+                "n": parser.parse_n_interval("56"),
+                "c": parser.parse_c_interval("-1")
+            },
+            {
+                "g": parser.parse_g_interval('228457817'),#"228645518"),
+                "n": parser.parse_n_interval("57"),
+                "c": parser.parse_c_interval("1")
+            },
+        # 5'
+            {
+                "g": parser.parse_g_interval('228457425'),#"228645126"),
+                "n": parser.parse_n_interval("449"),
+                "c": parser.parse_c_interval("393")
+            },
+            {
+                "g": parser.parse_g_interval('228457424'),#"228645125"),
+                "n": parser.parse_n_interval("450"),
+                "c": parser.parse_c_interval("*1")
+            },
+            {
+                "g": parser.parse_g_interval('228457423'),#"228645124"),
+                "n": parser.parse_n_interval("451"),
+                "c": parser.parse_c_interval("*2")
+            },
+            {
+                "g": parser.parse_g_interval("228457364"),#"228645065"),
+                "n": parser.parse_n_interval("510"),
+                "c": parser.parse_c_interval("*61")
+            },
+        ]
+        self.run_cases(tm, test_cases)
+
+    def test_alignmentmapper_AlignmentMapper_LCE2B_GRCh37(self):
         """NM_014357.4: LCE2B, two exons, strand = +1, all coordinate input/output are in HGVS"""
-        tx_ac = "NM_014357.4"
+        tx_ac = "ENST00000368780.3"
         alt_ac = "NC_000001.10"
-        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="splign")
+        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="genebuild")
         parser = vvhgvs.parser.Parser()
         test_cases = [
         # 5'
@@ -247,11 +352,94 @@ class Test_AlignmentMapper(unittest.TestCase):
         ]
         self.run_cases(tm, test_cases)
 
-    def test_alignmentmapper_AlignmentMapper_PTH2(self):
+    def test_alignmentmapper_AlignmentMapper_LCE2B_GRCh38(self):
+        """NM_014357.4: LCE2B, two exons, strand = +1, all coordinate input/output are in HGVS"""
+        tx_ac = "ENST00000368780.4"
+        alt_ac = "NC_000001.11"
+        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="genebuild")
+        parser = vvhgvs.parser.Parser()
+        test_cases = [
+        # 5'
+            {
+                "g": parser.parse_g_interval('152686123'),#"152658599"),
+                "n": parser.parse_n_interval("1"),
+                "c": parser.parse_c_interval("-54")
+            },
+            {
+                "g": parser.parse_g_interval('152686125'),#"152658601"),
+                "n": parser.parse_n_interval("3"),
+                "c": parser.parse_c_interval("-52")
+            },
+        # cds
+            {
+                "g": parser.parse_g_interval('152686843'),#"152659319"),
+                "n": parser.parse_n_interval("54"),
+                "c": parser.parse_c_interval("-1")
+            },
+            {
+                "g": parser.parse_g_interval('152686844'),#"152659320"),
+                "n": parser.parse_n_interval("55"),
+                "c": parser.parse_c_interval("1")
+            },
+        # around end of exon 1
+            {
+                "g": parser.parse_g_interval('152686156'),#"152658632"),
+                "n": parser.parse_n_interval("34"),
+                "c": parser.parse_c_interval("-21")
+            },
+            {
+                "g": parser.parse_g_interval('152686157'),#"152658633"),
+                "n": parser.parse_n_interval("34+1"),
+                "c": parser.parse_c_interval("-21+1")
+            },
+        # span
+            {#-4
+                "g": parser.parse_g_interval('152686157_152686823'),#152686823'),#"152658633_152659299"),
+                "n": parser.parse_n_interval("34+1_35-1"),
+                "c": parser.parse_c_interval("-21+1_-20-1")
+            },
+        # around beginning of exon 2
+            {
+                "g": parser.parse_g_interval('152686824'),#"152659300"),
+                "n": parser.parse_n_interval("35"),
+                "c": parser.parse_c_interval("-20")
+            },
+            {#-4
+                "g": parser.parse_g_interval('152686823'),#"152659299"),
+                "n": parser.parse_n_interval("35-1"),
+                "c": parser.parse_c_interval("-20-1")
+            },
+        # around end of exon 2
+            {
+                "g": parser.parse_g_interval('152687176'),#"152659652"),
+                "n": parser.parse_n_interval("387"),
+                "c": parser.parse_c_interval("333")
+            },
+            {
+                "g": parser.parse_g_interval('152687177'),#"152659653"),
+                "n": parser.parse_n_interval("388"),
+                "c": parser.parse_c_interval("*1")
+            },
+        # span
+            {
+                "g": parser.parse_g_interval('152687175_152687178'),#"152659651_152659654"),
+                "n": parser.parse_n_interval("386_389"),
+                "c": parser.parse_c_interval("332_*2")
+            },
+        # 3'
+            {
+                "g": parser.parse_g_interval('152687397'),#-4 length '152687401'),#"152659877"),
+                "n": parser.parse_n_interval("608"),
+                "c": parser.parse_c_interval("*221")
+            },
+        ]
+        self.run_cases(tm, test_cases)
+
+    def test_alignmentmapper_AlignmentMapper_PTH2_GRCh37(self):
         """NM_178449.3: PTH2, two exons, strand = -1, all coordinate input/output are in HGVS"""
-        tx_ac = "NM_178449.3"
+        tx_ac = "ENST00000270631.1"
         alt_ac = "NC_000019.9"
-        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="splign")
+        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="genebuild")
         parser = vvhgvs.parser.Parser()
         test_cases = [
         # 3'
@@ -318,13 +506,91 @@ class Test_AlignmentMapper(unittest.TestCase):
         ]
         self.run_cases(tm, test_cases)
 
+    def test_alignmentmapper_AlignmentMapper_PTH2_GRCh38(self):
+        """NM_178449.3: PTH2, two exons, strand = -1, all coordinate input/output are in HGVS"""
+        tx_ac = "ENST00000270631.2"#5 bp shorter
+        alt_ac = "NC_000019.10"
+        tm = AlignmentMapper(self.hdp, tx_ac, alt_ac, alt_aln_method="genebuild")
+        parser = vvhgvs.parser.Parser()
+        test_cases = [
+        # 3'
+            {
+                "g": parser.parse_g_interval('49423441'),#"49926698"),
+                "n": parser.parse_n_interval("1"),
+                "c": parser.parse_c_interval("-102")
+            },
+        # cds
+            {
+                "g": parser.parse_g_interval('49423340'),#"49926597"),
+                "n": parser.parse_n_interval("102"),
+                "c": parser.parse_c_interval("-1")
+            },
+            {
+                "g": parser.parse_g_interval('49423339'),#"49926596"),
+                "n": parser.parse_n_interval("103"),
+                "c": parser.parse_c_interval("1")
+            },
+        # around end of exon 1
+            {
+                "g": parser.parse_g_interval('49423212'),#"49926469"),
+                "n": parser.parse_n_interval("230"),
+                "c": parser.parse_c_interval("128")
+            },
+            {
+                "g": parser.parse_g_interval('49423211'),#"49926468"),
+                "n": parser.parse_n_interval("230+1"),
+                "c": parser.parse_c_interval("128+1")
+            },
+        # span
+            {
+                "g": parser.parse_g_interval('49422644_49423210'),#"49925901_49926467"),
+                "n": parser.parse_n_interval("230+2_231-2"),
+                "c": parser.parse_c_interval("128+2_129-2")
+            },
+        # around beginning of exon 2
+            {
+                "g": parser.parse_g_interval('49422643'),#"49925900"),
+                "n": parser.parse_n_interval("231-1"),
+                "c": parser.parse_c_interval("129-1")
+            },
+            {
+                "g": parser.parse_g_interval('49422642'),#"49925899"),
+                "n": parser.parse_n_interval("231"),
+                "c": parser.parse_c_interval("129")
+            },
+        # around end of exon 2
+            {
+                "g": parser.parse_g_interval('49422468'),#"49925725"),
+                "n": parser.parse_n_interval("405"),
+                "c": parser.parse_c_interval("303")
+            },
+            {
+                "g": parser.parse_g_interval('49422467'),#"49925724"),
+                "n": parser.parse_n_interval("406"),
+                "c": parser.parse_c_interval("*1")
+            },
+            {#-5 on -1 strand ...+5
+                "g": parser.parse_g_interval('49422419'),#'49422414'),#"49925671"),
+                "n": parser.parse_n_interval('454'),#"459"),
+                "c": parser.parse_c_interval('*49'),#"*54")
+            },
+        ]
+        self.run_cases(tm, test_cases)
+
     def run_cases(self, tm, test_cases):
         for test_case in test_cases:
+            print(f"g{test_case['g']} n{test_case['n']} c{test_case['c']}")
+            print('g-n')
             self.assertEqual(tm.g_to_n(test_case["g"]), test_case["n"])
+            print('n-g')
             self.assertEqual(tm.n_to_g(test_case["n"]), test_case["g"])
+            print('n-c')
             self.assertEqual(tm.n_to_c(test_case["n"]), test_case["c"])
+            print('c-n')
             self.assertEqual(tm.c_to_n(test_case["c"]), test_case["n"])
+            print('g-c')
             self.assertEqual(tm.g_to_c(test_case["g"]), test_case["c"])
+            print('c-g')
             self.assertEqual(tm.c_to_g(test_case["c"]), test_case["g"])
 
 
@@ -335,7 +601,7 @@ if __name__ == "__main__":
     # harder tests ###
     #def test_alignmentmapper_AlignmentMapper_1_ZCCHC3(self):
     #    """
-    #    reece=> select * from uta.tx_info where ac="NM_033089.6";
+    #    reece=> select * from uta.tx_info where ac="NM_033089.6"; # ->ENST00000500893.3
     #       gene  | strand |     ac      | cds_start_i | cds_end_i |                 descr                 | summary
     #    --------+--------+-------------+-------------+-----------+---------------------------------------+---------
     #      ZCCHC3 |      1 | NM_033089.6 |          24 |      1236 | zinc finger, CCHC domain containing 3 |

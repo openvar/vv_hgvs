@@ -22,11 +22,11 @@ import vvhgvs.validator
 import vvhgvs.variantmapper
 from support import CACHE
 
-
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 @pytest.mark.issues
 class Test_Issues(unittest.TestCase):
     def setUp(self):
-        self.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        self.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
         self.vm = vvhgvs.variantmapper.VariantMapper(self.hdp, replace_reference=False)
         self.vm_rr = vvhgvs.variantmapper.VariantMapper(self.hdp, replace_reference=True)
         self.hp = vvhgvs.parser.Parser()

@@ -13,8 +13,8 @@ import vvhgvs.variantmapper
 import vvhgvs.parser
 import vvhgvs.normalizer
 from support import CACHE
-
-hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
+hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
 
 
 @pytest.mark.normalization

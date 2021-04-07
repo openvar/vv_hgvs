@@ -41,45 +41,39 @@ class TranscriptMapper(object):
         self.alt_ac = alt_ac
         self.alt_aln_method = alt_aln_method
         if self.alt_aln_method != "transcript":
-            self.tx_info = hdp.get_tx_info(self.tx_ac, self.alt_ac, self.alt_aln_method)
-            if self.tx_info is None:
-                raise HGVSDataNotAvailableError("TranscriptMapper(tx_ac={self.tx_ac}, "
-                                                "alt_ac={self.alt_ac}, alt_aln_method={self.alt_aln_method}): "
-                                                "No transcript info".format(self=self))
-
-            self.tx_exons = hdp.get_tx_exons(self.tx_ac, self.alt_ac, self.alt_aln_method)
-            if self.tx_exons is None:
-                raise HGVSDataNotAvailableError("TranscriptMapper(tx_ac={self.tx_ac}, "
-                                                "alt_ac={self.alt_ac}, alt_aln_method={self.alt_aln_method}): "
-                                                "No transcript exons".format(self=self))
-
-            # vvhgvs-386: An assumption when building the cigar string
-            # is that exons are adjacent. Assert that here.
-            tx_exons = sorted(self.tx_exons, key=lambda e: e["ord"])
-            for i in range(1, len(tx_exons)):
-                if tx_exons[i - 1]["tx_end_i"] != tx_exons[i]["tx_start_i"]:
-                    raise HGVSDataNotAvailableError("TranscriptMapper(tx_ac={self.tx_ac}, "
-                                                    "alt_ac={self.alt_ac}, alt_aln_method={self.alt_aln_method}): "
-                                                    "Exons {a} and {b} are not adjacent".format(
-                                                        self=self, a=i, b=i + 1))
-
-            self.strand = self.tx_exons[0]["alt_strand"]
-            self.cds_start_i = self.tx_info["cds_start_i"]
-            self.cds_end_i = self.tx_info["cds_end_i"]
-            self.gc_offset = self.tx_exons[0]["alt_start_i"]
-            self.cigar = build_tx_cigar(self.tx_exons, self.strand)
+            #tx_exons = hdp.get_tx_exons(self.tx_ac, self.alt_ac, self.alt_aln_method)
+            # now pre filtered, exons must be adjacent within transcript
+            tx_exons = hdp.get_agg_exon_aln(self.tx_ac, self.alt_ac, self.alt_aln_method)
+            if tx_exons is None:
+                tx_info = hdp.get_tx_limits(self.tx_ac)
+                if tx_info is None:
+                    raise HGVSDataNotAvailableError(
+                        "TranscriptMapper(ac={self.tx_ac}, "
+                        "No transcript info".format(self=self)
+                        )
+                raise HGVSDataNotAvailableError(
+                    "TranscriptMapper(tx_ac={self.tx_ac}, "
+                    "alt_ac={self.alt_ac}, "
+                    "alt_aln_method={self.alt_aln_method}): "
+                    "No transcript exons".format(self=self)
+                    )
+            self.strand = tx_exons["alt_strand"]
+            self.cds_start_i = tx_exons["cds_start_i"]
+            self.cds_end_i = tx_exons["cds_end_i"]
+            self.gc_offset = tx_exons["mapped_start"]
+            self.cigar = tx_exons['not_quite_cigar']
             self.im = vvhgvs.intervalmapper.IntervalMapper.from_cigar(self.cigar)
             self.tgt_len = self.im.tgt_len
         else:
             # this covers the identity cases n <-> c
-            self.tx_identity_info = hdp.get_tx_identity_info(self.tx_ac)
+            self.tx_identity_info = hdp.get_tx_limits(self.tx_ac)
             if self.tx_identity_info is None:
                 raise HGVSError("TranscriptMapper(tx_ac={self.tx_ac}, "
                                 "alt_ac={self.alt_ac}, alt_aln_method={self.alt_aln_method}): "
                                 "No transcript identity info".format(self=self))
             self.cds_start_i = self.tx_identity_info["cds_start_i"]
             self.cds_end_i = self.tx_identity_info["cds_end_i"]
-            self.tgt_len = sum(self.tx_identity_info["lengths"])
+            self.tgt_len = self.tx_identity_info["length"]
 
         assert not ((self.cds_start_i is None) ^
                     (self.cds_end_i is None)), "CDS start and end must both be defined or neither defined"
@@ -87,14 +81,14 @@ class TranscriptMapper(object):
     def __str__(self):
         return "{self.__class__.__name__}: {self.tx_ac} ~ {self.alt_ac} ~ {self.alt_aln_method); " \
                "{strand_pm} strand; {n_exons} exons; offset={self.gc_offset}".format(
-                   self=self, n_exons=len(self.tx_exons), strand_pm=strand_int_to_pm(self.strand))
+                   self=self, n_exons=len(self.cigar), strand_pm=strand_int_to_pm(self.strand))
 
     @property
     def is_coding_transcript(self):
-        if ((self.tx_info["cds_start_i"] is not None) ^ (self.tx_info["cds_end_i"] is not None)):
+        if ((self.cds_start_i is not None) ^ (self.cds_end_i is not None)):
             raise HGVSError("{self.tx_ac}: CDS start_i and end_i"
                             " must be both defined or both undefined".format(self=self))
-        return self.tx_info["cds_start_i"] is not None
+        return self.cds_start_i is not None
 
     def g_to_n(self, g_interval):
         """convert a genomic (g.) interval to a transcript cDNA (n.) interval"""

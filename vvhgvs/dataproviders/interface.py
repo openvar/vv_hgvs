@@ -92,6 +92,18 @@ class Interface(six.with_metaclass(abc.ABCMeta, object)):
         self.get_tx_mapping_options = lru_cache(
             maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_tx_mapping_options)
 
+        self.get_tx_for_gene_id = lru_cache(
+            maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_tx_for_gene_id)
+        self.get_gene_info_by_id = lru_cache(
+            maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_gene_info_by_id)
+        self.get_gene_info_by_alias = lru_cache(
+            maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_gene_info_by_alias)
+        self.get_tx_limits = lru_cache(
+            maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_tx_limits)
+        self.get_agg_exon_aln = lru_cache(
+            maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_agg_exon_aln)
+
+
         def _split_version_string(v):
             versions = list(map(int, v.split(".")))
             if len(versions) < 2:
@@ -137,6 +149,14 @@ class Interface(six.with_metaclass(abc.ABCMeta, object)):
         pass
 
     @abc.abstractmethod
+    def get_gene_info_by_id(self, gene):
+        pass
+
+    @abc.abstractmethod
+    def get_gene_info_by_alias(self, alias):
+        pass
+
+    @abc.abstractmethod
     def get_pro_ac_for_tx_ac(self, tx_ac):
         pass
 
@@ -154,6 +174,10 @@ class Interface(six.with_metaclass(abc.ABCMeta, object)):
 
     @abc.abstractmethod
     def get_tx_for_gene(self, gene):
+        pass
+
+    @abc.abstractmethod
+    def get_tx_for_gene_id(self, gene):
         pass
 
     @abc.abstractmethod

@@ -14,11 +14,12 @@ import vvhgvs.parser
 import vvhgvs.projector
 from support import CACHE
 
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 
 class TestHgvsProjector(unittest.TestCase):
     @classmethod
     def setUp(cls):
-        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
         cls.alt_ac = "NC_000001.10"
         cls.alt_aln_method = "splign"
         cls.hp = vvhgvs.parser.Parser()

@@ -117,7 +117,7 @@ class ExtrinsicValidator():
     def _c_within_cds_bound(self, var):
         if var.type != 'c':
             return (ValidationLevel.VALID, None)
-        tx_info = self.hdp.get_tx_identity_info(var.ac)
+        tx_info = self.hdp.get_tx_limits(var.ac)
         if tx_info is None:
             return (ValidationLevel.WARNING, "No transcript data for accession: {ac}".format(ac=var.ac))
         cds_length = tx_info["cds_end_i"] - tx_info["cds_start_i"]

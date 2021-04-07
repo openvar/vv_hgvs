@@ -42,39 +42,35 @@ class AlignmentMapper(object):
                                                 "alt_ac={self.alt_ac}, alt_aln_method={self.alt_aln_method}): "
                                                 "No transcript info".format(self=self))
 
-            tx_exons = hdp.get_tx_exons(self.tx_ac, self.alt_ac, self.alt_aln_method)
+            #tx_exons = hdp.get_tx_exons(self.tx_ac, self.alt_ac, self.alt_aln_method)
+            # now pre filtered, exons must be adjacent within transcript
+            tx_exons = hdp.get_agg_exon_aln(self.tx_ac, self.alt_ac, self.alt_aln_method)
             if tx_exons is None:
-                raise HGVSDataNotAvailableError("AlignmentMapper(tx_ac={self.tx_ac}, "
-                                                "alt_ac={self.alt_ac}, alt_aln_method={self.alt_aln_method}): "
-                                                "No transcript exons".format(self=self))
-
-            # vvhgvs-386: An assumption when building the cigar string
-            # is that exons are adjacent. Assert that here.
-            sorted_tx_exons = sorted(tx_exons, key=lambda e: e["ord"])
-            for i in range(1, len(sorted_tx_exons)):
-                if sorted_tx_exons[i - 1]["tx_end_i"] != sorted_tx_exons[i]["tx_start_i"]:
+                tx_info = hdp.get_tx_info(self.tx_ac, self.alt_ac, self.alt_aln_method)
+                if tx_info is None:
                     raise HGVSDataNotAvailableError("AlignmentMapper(tx_ac={self.tx_ac}, "
-                                                    "alt_ac={self.alt_ac}, alt_aln_method={self.alt_aln_method}): "
-                                                    "Exons {a} and {b} are not adjacent".format(
-                                                        self=self, a=i, b=i + 1))
+                        "No transcript info".format(self=self))
+                raise HGVSDataNotAvailableError("AlignmentMapper(tx_ac={self.tx_ac}, "
+                    "alt_ac={self.alt_ac}, alt_aln_method={self.alt_aln_method}): "
+                    "No transcript exons".format(self=self))
 
-            self.strand = tx_exons[0]["alt_strand"]
-            self.gc_offset = tx_exons[0]["alt_start_i"]
-            self.cds_start_i = tx_info["cds_start_i"]
-            self.cds_end_i = tx_info["cds_end_i"]
-            self.cigar = build_tx_cigar(tx_exons, self.strand)
+            self.strand = tx_exons["alt_strand"]
+            self.gc_offset = tx_exons["mapped_start"]
+            self.cds_start_i = tx_exons["cds_start_i"]
+            self.cds_end_i = tx_exons["cds_end_i"]
+            self.cigar = tx_exons['not_quite_cigar']
             self.ref_pos, self.tgt_pos, self.cigar_op = self._parse_cigar(self.cigar)
             self.tgt_len = self.tgt_pos[-1]
         else:
             # this covers the identity cases n <-> c
-            tx_identity_info = hdp.get_tx_identity_info(self.tx_ac)
+            tx_identity_info = hdp.get_tx_limits(self.tx_ac)
             if tx_identity_info is None:
                 raise HGVSDataNotAvailableError("AlignmentMapper(tx_ac={self.tx_ac}, "
                                                 "alt_ac={self.alt_ac}, alt_aln_method={self.alt_aln_method}): "
                                                 "No transcript identity info".format(self=self))
             self.cds_start_i = tx_identity_info["cds_start_i"]
             self.cds_end_i = tx_identity_info["cds_end_i"]
-            self.tgt_len = sum(tx_identity_info["lengths"])
+            self.tgt_len = tx_identity_info["length"]
 
         assert not ((self.cds_start_i is None) ^
                     (self.cds_end_i is None)), "CDS start and end must both be defined or neither defined"

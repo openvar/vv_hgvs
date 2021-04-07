@@ -6,7 +6,7 @@ import pprint
 import re
 import sys
 import os
-
+import vvhgvs as hgvs
 import unittest
 
 if sys.version_info < (3, ):
@@ -31,11 +31,12 @@ def gxp_file_reader(fn):
             continue
         yield rec
 
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 
 @pytest.mark.mapping
 class Test_VariantMapper(unittest.TestCase):
     def setUp(self):
-        self.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        self.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
         self.hm = vvhgvs.variantmapper.VariantMapper(self.hdp)
         self.hp = vvhgvs.parser.Parser()
 

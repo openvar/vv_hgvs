@@ -24,10 +24,11 @@ from support import CACHE
 
 data_fn = os.path.join(os.path.dirname(__file__), "data", "clinvar.gz")
 
+txt_mode=os.environ.get("HGVS_CACHE_MODE", None)
 
 class Test_Clinvar(unittest.TestCase, CrossChecker):
     def setUp(self):
-        self.hdp = vvhgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        self.hdp = vvhgvs.dataproviders.uta.connect(mode=txt_mode, cache=CACHE)
         self.vm = vvhgvs.variantmapper.VariantMapper(self.hdp)
         self.hp = vvhgvs.parser.Parser()
 

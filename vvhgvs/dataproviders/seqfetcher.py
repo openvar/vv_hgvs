@@ -43,6 +43,11 @@ class SeqFetcher(object):
             self.fetcher = _fetch_seq_seqrepo
             self.source = "SeqRepo ({})".format(seqrepo_dir)
         else:
+            quit("""
+            V.V. usage can be quite heavy, variant validators "test_configuration.py" asserts that
+            we should at least explicitly chose the location, therefore, for vvhgvs, disable silent
+            public fallback, explicitly set a external seqrepo location if remote data is needed.
+            """)
             self.fetcher = bioutils.seqfetcher.fetch_seq
             self.source = "bioutils.seqfetcher"
         _logger.info("Fetching sequences with " + self.source)

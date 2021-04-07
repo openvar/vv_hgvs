@@ -54,6 +54,11 @@ def _get_uta_db_url():
     if "_UTA_URL_KEY" in os.environ:
         url_key = os.environ["_UTA_URL_KEY"]
     else:
+        quit("""
+        V.V. usage can be quite heavy, variant validators "test_configuration.py" asserts that we 
+        should at least explicitly chose the location, therefore, for vvhgvs, disable silent public 
+        fallback, explicitly set a external url key if remote data is needed.
+        """)
         sdlc = _stage_from_version(vvhgvs.__version__)
         url_key = "public_{sdlc}".format(sdlc=sdlc)
     return vvhgvs.global_config['uta'][url_key]
@@ -98,9 +103,7 @@ def connect(db_url=None, pooling=vvhgvs.global_config.uta.pooling, application_n
         db_url = _get_uta_db_url()
 
     url = _parse_url(db_url)
-    if url.scheme == 'sqlite':
-        conn = UTA_sqlite(url, mode, cache)
-    elif url.scheme == 'postgresql':
+    if url.scheme == 'postgresql':
         conn = UTA_postgresql(url=url, pooling=pooling, application_name=application_name, mode=mode, cache=cache)
     else:
         # fell through connection scheme cases
@@ -110,82 +113,85 @@ def connect(db_url=None, pooling=vvhgvs.global_config.uta.pooling, application_n
 
 
 class UTABase(Interface):
-    required_version = "1.1"
-
+    required_version = "0.9"
+    version_type = 'matview_version'
+    # for the id quires we need at least uta 1.1 and vvta ver 0.6+ 
+    # but no way to specify simply, without breaking whole set on lower ver num
     _queries = {
-        "acs_for_protein_md5":
-        """
-            select ac
-            from seq_anno
-            where seq_id=?
-            """,
-        "gene_info":
-        """
-            select *
-            from gene
-            where hgnc=?
-            """,
-
+        "acs_for_protein_md5":"select ac from seq_anno where seq_id=%s",
+        "gene_info":"select * from gene where hgnc=%s",
+        "gene_info_by_id":"select * from gene where hgnc_id=%s",
+        # to get alias (or prev symbol from alias column) use LIKE for
+        # now.  'SIMILAR TO' tests slower, and like regex it has
+        # safety issues "= ANY (string_to_array(aliases,','))" is the
+        # same, if a little slower. If we split first and store as
+        # array is 1/4 quicker, and does not have the problem of
+        # having to repeat the input
+        'gene_info_by_alias_symbol':'''
+            SELECT *
+            FROM gene
+            WHERE
+                aliases = %s
+                OR aliases LIKE %s || ',%%'
+                OR aliases LIKE '%%,' || %s || ',%%'
+                OR aliases LIKE '%%,' || %s
+            ''',
     # TODO: reconcile tx_exons query and build_tx_cigar
-    # built_tx_cigar says it expects exons in transcript order,
-    # but tx_exons isn't do that (on the - strand).
-        "tx_exons":
-        """
-            select *
-            from tx_exon_aln_v
-            where tx_ac=? and alt_ac=? and alt_aln_method=?
+    # built_tx_cigar says it expects exons in transcript order, but this is genomic order.
+        "tx_exons":"""
+            select tx_ac, alt_ac,alt_aln_method,alt_strand,ord,tx_start_i,tx_end_i,alt_start_i,alt_end_i,cigar
+            from tx_exon_aln_mv where tx_ac=%s and alt_ac=%s and alt_aln_method=%s 
             order by alt_start_i
             """,
-        "tx_for_gene":
-        """
+    # This query should replace tx_exons in all new code, it is pre checked and should be a faster lookup vs
+    # the list of results from tx_exons, at least for things like strand, the arrays are transcript order.
+    # This contains extra details not used in the uta so that caching will prevent repeated lookups when 
+    # this data is used by variant validator.
+        "agg_exon_aln":"""
+            SELECT 
+            alt_strand,mapped_start,not_quite_cigar,mapped_end,
+            cds_start_i, cds_end_i,
+            transcript_exon_start_end,mapped_exon_start_end
+            FROM full_tx_aln_w_nq_cigar_mv
+            WHERE tx_ac=%s and alt_ac=%s and alt_aln_method=%s
+            """,
+
+        "tx_for_gene":"""
             select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
-            from transcript T
-            join exon_set ES on T.ac=ES.tx_ac where alt_aln_method != 'transcript' and hgnc=?
+            from current_valid_mapped_transcript_per_gene_mv where hgnc=%s
             """,
-        "tx_for_region":
-        """
-            select tx_ac,alt_ac,alt_strand,alt_aln_method,min(start_i) as start_i,max(end_i) as end_i
-            from exon_set ES
-            join exon E on ES.exon_set_id=E.exon_set_id 
-            where alt_ac=? and alt_aln_method=?
-            group by tx_ac,alt_ac,alt_strand,alt_aln_method
-            having min(start_i) < ? and ? <= max(end_i)
-            """,
-        "tx_identity_info":
-        """
-            select distinct(tx_ac), alt_ac, alt_aln_method, cds_start_i, cds_end_i, lengths, hgnc
-            from tx_def_summary_v
-            where tx_ac=?
-            """,
-        "tx_info":
-        """
+        "tx_for_gene_id":"""
             select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
-            from transcript T
-            join exon_set ES on T.ac=ES.tx_ac
-            where tx_ac=? and alt_ac=? and alt_aln_method=?
+            from current_valid_mapped_transcript_per_gene_mv where hgnc_id=%s
             """,
-        "tx_mapping_options":
-        """
-            select distinct tx_ac,alt_ac,alt_aln_method
-            from tx_exon_aln_v where tx_ac=? and exon_aln_id is not NULL
+        "tx_for_region":"""
+            select tx_ac,alt_ac,alt_strand,alt_aln_method,start_i,end_i
+            from current_valid_mapped_transcript_spans_mv 
+            where alt_ac=%s and alt_aln_method=%s and start_i < %s and %s <= end_i
             """,
-        "tx_seq":
-        """
-            select seq
-            from seq S
-            join seq_anno SA on S.seq_id=SA.seq_id
-            where ac=?
+        "tx_limits":"""
+            SELECT ac, cds_start_i, cds_end_i, length, hgnc
+            FROM transcript_lengths_mv
+            WHERE ac=%s
             """,
-        "tx_similar":
-        """
-            select *
-            from tx_similarity_v
-            where tx_ac1 = ?
+        # compat query for old tx_identity_info will work with numeric indexing
+        "tx_identity_info":"""
+            SELECT ac as tx_ac, NULL AS alt_ac, NULL AS alt_aln_method, cds_start_i, cds_end_i, ARRAY[length] AS lengths, hgnc
+            FROM transcript_lengths_mv
+            WHERE ac=%s
             """,
-        "tx_to_pro":
-        """
-            select * from associated_accessions where tx_ac = ? order by pro_ac desc
+        "tx_info":"""
+            select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
+            from all_mapped_transcript_mv
+            where tx_ac=%s and alt_ac=%s and alt_aln_method=%s
             """,
+        "tx_mapping_options": """
+            select distinct tx_ac,alt_ac,alt_aln_method 
+            from tx_exon_aln_mv where tx_ac=%s and cigar is not NULL
+            """,
+        "tx_seq":"select seq from seq S join seq_anno SA on S.seq_id=SA.seq_id where ac=%s",
+        "tx_similar":"select * from tx_similarity_v where tx_ac1 = %s",
+        "tx_to_pro":"select * from associated_accessions where tx_ac = %s order by pro_ac desc",
     }
 
     def __init__(self, url, mode=None, cache=None):
@@ -221,7 +227,7 @@ class UTABase(Interface):
         return self.url.schema
 
     def schema_version(self):
-        return self._fetchone("select * from meta where key = 'schema_version'")['value']
+        return self._fetchone(f"select * from meta where key = '{self.version_type}'")['value']
 
     def get_seq(self, ac, start_i=None, end_i=None):
         return self.seqfetcher.fetch_seq(ac, start_i, end_i)
@@ -253,6 +259,14 @@ class UTABase(Interface):
 
         """
         return self._fetchone(self._queries['gene_info'], [gene])
+    #same as above but by id not symbol
+    def get_gene_info_by_id(self, gene_id):
+        return self._fetchone(self._queries['gene_info_by_id'], [gene_id])
+    def get_gene_info_by_alias(self, gene_alias):
+        return self._fetchall(
+                self._queries['gene_info_by_alias_symbol'],
+                [gene_alias,gene_alias,gene_alias,gene_alias]
+                )
 
     def get_tx_exons(self, tx_ac, alt_ac, alt_aln_method):
         """
@@ -310,6 +324,16 @@ class UTABase(Interface):
                                                 tx_ac=tx_ac, alt_ac=alt_ac, alt_aln_method=alt_aln_method))
         return rows
 
+    def get_agg_exon_aln(self, tx_ac, alt_ac, alt_aln_method):
+        """
+        return transcript alignment details for supplied (tx_ac, alt_ac, alt_aln_method), or None if not found
+        pre-filtered for start =0 and contiguousness 
+        return order = strand,cigar start offset, not quite cigar format alignment,mapped end pos,
+        cds start,cds end,exon pos sets, exon mapping pos sets
+        """
+        return self._fetchone(self._queries['agg_exon_aln'], [tx_ac, alt_ac, alt_aln_method])
+
+
     def get_tx_for_gene(self, gene):
         """
         return transcript info records for supplied gene, in order of decreasing length
@@ -318,6 +342,9 @@ class UTABase(Interface):
         :type gene: str
         """
         return self._fetchall(self._queries['tx_for_gene'], [gene])
+    #same as above but by id not symbol
+    def get_tx_for_gene_id(self, gene_id):
+        return self._fetchall(self._queries['tx_for_gene_id'], [gene_id])
 
     def get_tx_for_region(self, alt_ac, alt_aln_method, start_i, end_i):
         """
@@ -351,7 +378,18 @@ class UTABase(Interface):
         if len(rows) == 0:
             raise HGVSDataNotAvailableError("No transcript definition for (tx_ac={tx_ac})".format(tx_ac=tx_ac))
         return rows[0]
-
+    def get_tx_limits(self, tx_ac):
+        """returns gene symbol and non alignment derived transcript features associated with a single transcript.
+        same as get_tx_identity_info but,
+        does not generate dummy values for alt_ac and method 
+        does not wrap transcript length as lengths in array
+        ac,cds_start_i,cds_end_i,length,hgnc
+        """
+        rows = self._fetchall(self._queries['tx_limits'], [tx_ac])
+        if len(rows) == 0:
+            raise HGVSDataNotAvailableError("No transcript definition for (tx_ac={tx_ac})".format(tx_ac=tx_ac))
+        return rows[0]
+       
     def get_tx_info(self, tx_ac, alt_ac, alt_aln_method):
         """return a single transcript info for supplied accession (tx_ac, alt_ac, alt_aln_method), or None if not found
 
@@ -504,9 +542,6 @@ class UTA_postgresql(UTABase):
             self._conn.autocommit = True
 
         self._ensure_schema_exists()
-
-        # remap sqlite's ? placeholders to psycopg2's %s
-        self._queries = {k: v.replace('?', '%s') for k, v in six.iteritems(self._queries)}
 
     def _ensure_schema_exists(self):
         # N.B. On AWS RDS, information_schema.schemata always returns zero rows
