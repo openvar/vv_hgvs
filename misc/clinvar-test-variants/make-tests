@@ -6,14 +6,14 @@ import io
 import re
 import sys
 
-import hgvs
-import hgvs.parser
+import vvhgvs
+import vvhgvs.parser
 
 
 if __name__ == "__main__":
     wanted_varstr_re = re.compile("^N[CMR]_\d+\.\d+:[gcn]")
 
-    hp = hgvs.parser.Parser()
+    hp = vvhgvs.parser.Parser()
 
     fn = sys.argv[1]
     fh = gzip.open(fn)
@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
         try:
             v0 = hp.parse_hgvs_variant(varstrings[0])
-        except hgvs.parser.HGVSParseError:
+        except vvhgvs.parser.HGVSParseError:
             continue
 
         key = rec["gene"] + "/" + v0.posedit.edit.type

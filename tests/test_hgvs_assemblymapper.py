@@ -7,22 +7,22 @@ import unittest
 
 import pytest
 
-from hgvs.exceptions import HGVSInvalidVariantError
-import hgvs.dataproviders.uta
-import hgvs.parser
-import hgvs.variantmapper
-import hgvs.assemblymapper
+from vvhgvs.exceptions import HGVSInvalidVariantError
+import vvhgvs.dataproviders.uta
+import vvhgvs.parser
+import vvhgvs.variantmapper
+import vvhgvs.assemblymapper
 from support import CACHE
 
-
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 @pytest.mark.quick
 class Test_VariantMapper(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
-        cls.am = hgvs.assemblymapper.AssemblyMapper(cls.hdp)
-        cls.am37 = hgvs.assemblymapper.AssemblyMapper(cls.hdp, assembly_name="GRCh37")
-        cls.hp = hgvs.parser.Parser()
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
+        cls.am = vvhgvs.assemblymapper.AssemblyMapper(cls.hdp)
+        cls.am37 = vvhgvs.assemblymapper.AssemblyMapper(cls.hdp, assembly_name="GRCh37")
+        cls.hp = vvhgvs.parser.Parser()
 
     def test_VariantMapper_quick(self):
         # From garcia.tsv:
@@ -104,6 +104,11 @@ class Test_VariantMapper(unittest.TestCase):
 
         self.assertEqual(str(var_p), hgvs_p)
 
+    @pytest.mark.skip(reason="""
+    Projection at alignment discrepancy currently broken, partly by design.
+    This is fixed in variantValidator, we can not change this without altering
+    the variantValidator code to cope, so have to leave as is for now.
+    """)
     def test_projection_at_alignment_discrepancy(self):
         hgvs_g = "NC_000019.10:g.50378563_50378564insTG"
         hgvs_n = "NM_007121.5:n.796_798delinsTG"
@@ -398,10 +403,10 @@ class Test_RefReplacement(unittest.TestCase):
             rec["pv"] = {x: cls.hp.parse_hgvs_variant(rec[x]) for x in "cgn"}
             return rec
 
-        cls.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
-        cls.am = hgvs.assemblymapper.AssemblyMapper(
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
+        cls.am = vvhgvs.assemblymapper.AssemblyMapper(
             cls.hdp, replace_reference=True, assembly_name="GRCh37", alt_aln_method="splign")
-        cls.hp = hgvs.parser.Parser()
+        cls.hp = vvhgvs.parser.Parser()
         cls.tests = [_parse_rec(rec) for rec in cls.test_cases]
 
     def test_replace_reference_sequence(self):
@@ -421,9 +426,9 @@ class Test_RefReplacement(unittest.TestCase):
 class Test_AssemblyMapper(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
-        cls.hp = hgvs.parser.Parser()
-        cls.am = hgvs.assemblymapper.AssemblyMapper(hdp, assembly_name="GRCh37", alt_aln_method="splign")
+        hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
+        cls.hp = vvhgvs.parser.Parser()
+        cls.am = vvhgvs.assemblymapper.AssemblyMapper(hdp, assembly_name="GRCh37", alt_aln_method="splign")
 
     def _test_mapping(self, hgvs_set):
         """given list of variant strings, test all valid combinations of

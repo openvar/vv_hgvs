@@ -9,7 +9,7 @@ import sys
 def parse_args(argv):
     ap = argparse.ArgumentParser(description=__doc__, )
     ap.add_argument('files', nargs='+', )
-    ap.add_argument('--hgvs-version', required=True)
+    ap.add_argument('--vvhgvs-version', required=True)
     opts = ap.parse_args(argv)
     return opts
 
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     print(
         'HGVS Railroad Diagram\n'
         '^^^^^^^^^^^^^^^^^^^^^\n\n'
-        '  | Generated from `hgvs (https://github.com/biocommons/hgvs) <https://github.com/biocommons/hgvs>`_\n'
+        '  | Generated from `vvhgvs (https://github.com/biocommons/vvhgvs) <https://github.com/biocommons/vvhgvs>`_\n'
         '  | ' + opts.hgvs_version + '\n'
         '  | See the source code for the OMeta-based grammar\n')
 

@@ -7,16 +7,16 @@ import os
 import re
 import unittest
 
-from hgvs.exceptions import HGVSDataNotAvailableError
-import hgvs.dataproviders.uta
-import hgvs.edit
-import hgvs.location
-import hgvs.posedit
-import hgvs.variantmapper
-import hgvs.sequencevariant
+from vvhgvs.exceptions import HGVSDataNotAvailableError
+import vvhgvs.dataproviders.uta
+import vvhgvs.edit
+import vvhgvs.location
+import vvhgvs.posedit
+import vvhgvs.variantmapper
+import vvhgvs.sequencevariant
 from support import CACHE
 
-
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 class UTA_Base(object):
     def test_get_acs_for_protein_seq(self):
         exp = ["NP_001005405.1", "MD5_8fc09b1d9a38a8c55176a0fa922df227"]
@@ -27,7 +27,9 @@ class UTA_Base(object):
         """
 
         s = re.sub(r"\s+", "", s.upper())
-        self.assertEqual(sorted(self.hdp.get_acs_for_protein_seq(s)), sorted(exp))
+        curr_accs = self.hdp.get_acs_for_protein_seq(s)
+        for prot_ac in exp:
+            assert prot_ac in curr_accs
 
         exp = ["NP_071928.2", "MD5_ffb0d4adbd5e0b5d71678228b3696984"]
         s = """
@@ -38,13 +40,31 @@ class UTA_Base(object):
         """
 
         s = re.sub(r"\s+", "", s.upper())
-        self.assertEqual(sorted(self.hdp.get_acs_for_protein_seq(s)), sorted(exp))
+        curr_accs = self.hdp.get_acs_for_protein_seq(s)
+        for prot_ac in exp:
+            assert prot_ac in curr_accs
 
     def test_get_gene_info(self):
         gene_info = self.hdp.get_gene_info("VHL")
         self.assertEqual("VHL", gene_info["hgnc"])
         self.assertEqual("3p25.3", gene_info["maploc"])
-        self.assertEqual(6, len(gene_info))
+        assert len(gene_info) in [6,7] #cope with gene id in newer databases
+    def test_get_gene_info_by_id(self):
+        gene_info_id = self.hdp.get_gene_info_by_id("HGNC:12687")
+        gene_info_symbol = self.hdp.get_gene_info("VHL")
+        self.assertEqual(gene_info_id,gene_info_symbol)
+        self.assertEqual("VHL", gene_info_id["hgnc"])
+        self.assertEqual("HGNC:12687", gene_info_id["hgnc_id"])
+        self.assertEqual("3p25.3", gene_info_id["maploc"])
+        self.assertEqual(7, len(gene_info_id))
+    def test_get_gene_info_by_alias(self):
+        # alias is actually historic symbol in new data
+        gene_info = self.hdp.get_gene_info_by_alias("VHLP")
+        gene_info = gene_info[0]
+        self.assertEqual("VHLL", gene_info["hgnc"])
+        self.assertEqual('HGNC:30666',gene_info["hgnc_id"])
+        self.assertEqual("1q22", gene_info["maploc"])
+        self.assertEqual(7, len(gene_info))
 
     def test_get_tx_exons(self):
         tx_exons = self.hdp.get_tx_exons("NM_000551.3", "NC_000003.11", "splign")
@@ -63,22 +83,31 @@ class UTA_Base(object):
             self.hdp.get_tx_exons("NM_000551.3", "NC_000999.9", "best")
 
     def test_get_tx_for_gene(self):
-        tig = self.hdp.get_tx_for_gene("VHL")
-        self.assertEqual(14, len(tig))
+        tig_id = self.hdp.get_tx_for_gene("VHL")
+        assert(len(tig_id)> 14)
+    def test_get_tx_for_gene_id(self):
+        tig_symbol = self.hdp.get_tx_for_gene("VHL")
+        tig_id = self.hdp.get_tx_for_gene_id("HGNC:12687")
+        for id_tx_set in tig_id:
+            assert id_tx_set in tig_symbol
+        assert(len(tig_id)> 14)
 
     def test_get_tx_for_gene_invalid_gene(self):
         tig = self.hdp.get_tx_for_gene("GENE")
         self.assertEqual(0, len(tig))
 
     def test_get_tx_info(self):
-        tx_info = self.hdp.get_tx_info("NM_000051.3", "AC_000143.1", "splign")
+        #replace AC_000143.1 (HuRef-removed) with NC_000011.10 (GRCh38)
+        tx_info = self.hdp.get_tx_info("NM_000051.3", "NC_000011.10", "splign")
         self.assertEqual(385, tx_info["cds_start_i"])
         self.assertEqual(9556, tx_info["cds_end_i"])
-        self.assertEqual("AC_000143.1", tx_info["alt_ac"])
+        self.assertEqual("NC_000011.10", tx_info["alt_ac"])
 
     def test_get_tx_info_invalid_tx_ac(self):
+        #replace AC_000143.1 (HuRef-removed) with NC_000011.10 (GRCh38)
+        # we want to test a non-existent transcript in an existing chr
         with self.assertRaises(HGVSDataNotAvailableError):
-            self.hdp.get_tx_info("NM_999999.9", "AC_000143.1", "splign")
+            self.hdp.get_tx_info("NM_999999.9", "NC_000011.10", "splign")
 
     def test_get_tx_mapping_options(self):
         tx_mapping_options = self.hdp.get_tx_mapping_options("NM_000551.3")
@@ -93,29 +122,29 @@ class UTA_Base(object):
 class Test_hgvs_dataproviders_uta_UTA_default(unittest.TestCase, UTA_Base):
     @classmethod
     def setUpClass(cls):
-        cls.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
 
 
 class Test_hgvs_dataproviders_uta_UTA_default_with_pooling(unittest.TestCase, UTA_Base):
     @classmethod
     def setUpClass(cls):
-        cls.hdp = hgvs.dataproviders.uta.connect(
-            pooling=True, mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+        cls.hdp = vvhgvs.dataproviders.uta.connect(
+            pooling=True, mode=mode_txt, cache=CACHE)
 
 
 class TestUTACache(Test_hgvs_dataproviders_uta_UTA_default):
     def _create_cdna_variant(self):
-        start = hgvs.location.SimplePosition(118898437)
-        end = hgvs.location.SimplePosition(118898437)
-        iv = hgvs.location.Interval(start=start, end=end)
-        edit = hgvs.edit.NARefAlt(ref="C", alt="T")
-        posedit = hgvs.posedit.PosEdit(pos=iv, edit=edit)
-        genomic_variant = hgvs.sequencevariant.SequenceVariant(
+        start = vvhgvs.location.SimplePosition(118898437)
+        end = vvhgvs.location.SimplePosition(118898437)
+        iv = vvhgvs.location.Interval(start=start, end=end)
+        edit = vvhgvs.edit.NARefAlt(ref="C", alt="T")
+        posedit = vvhgvs.posedit.PosEdit(pos=iv, edit=edit)
+        genomic_variant = vvhgvs.sequencevariant.SequenceVariant(
             ac="NC_000011.9",
             type="g",
             posedit=posedit,
         )
-        variantmapper = hgvs.variantmapper.VariantMapper(self.hdp)
+        variantmapper = vvhgvs.variantmapper.VariantMapper(self.hdp)
         return variantmapper.g_to_c(genomic_variant, "NM_001164277.1")
 
     def test_deterministic_cache_results(self):

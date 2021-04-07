@@ -5,12 +5,15 @@ import os
 
 import pytest
 
-from hgvs.exceptions import HGVSError, HGVSInvalidVariantError
-import hgvs.dataproviders.uta
-import hgvs.parser
-import hgvs.assemblymapper
+from vvhgvs.exceptions import HGVSError, HGVSInvalidVariantError
+import vvhgvs.dataproviders.uta
+import vvhgvs.parser
+import vvhgvs.assemblymapper
 from support import CACHE
 
+# 14 tests disabled due to revert of partly fixed gap issues, variant
+# validator handles this for now so if you intend to fix both need to
+# change at once
 tests_fn = "tests/data/proj-near-disc.tsv"
 
 
@@ -26,11 +29,11 @@ def read_tests(fn):
         dt, lt, var, exp = line.split()
         yield {"disc_type": dt, "loc_type": lt, "variant": var, "expected": exp}
 
-
-hp = hgvs.parser.Parser()
-hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
+hp = vvhgvs.parser.Parser()
+hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
 # TODO: Use variantmapper instead of assemblymapper
-am38 = hgvs.assemblymapper.AssemblyMapper(hdp, assembly_name='GRCh38', normalize=False)
+am38 = vvhgvs.assemblymapper.AssemblyMapper(hdp, assembly_name='GRCh38', normalize=False)
 
 tests = list(read_tests(tests_fn))
 params = [(t["variant"], t["expected"], t["loc_type"] + " " + t["disc_type"]) for t in tests]

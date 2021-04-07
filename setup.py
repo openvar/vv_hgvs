@@ -18,13 +18,13 @@ setup(license="Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0)",
       author="HGVS Contributors",
       author_email = 'hgvs-discuss@gmail.com',
       description = short_description.replace("\n", " "),
-      name="hgvs",
-      package_data={"hgvs": ["_data/*"]},
+      name="vvhgvs",
+      package_data={"vvhgvs": ["_data/*"]},
       packages=find_packages(),
-      url="https://github.com/biocommons/hgvs",
+      url="https://github.com/openvar/vv_hgvs",
       entry_points={
           'console_scripts': [
-              'hgvs-shell = hgvs.shell:shell'
+              'vvhgvs-shell = vvhgvs.shell:shell'
           ],
       },
       classifiers=[
@@ -49,16 +49,17 @@ setup(license="Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0)",
           "genomic variants",
           "genomic variation",
           "genomics",
-          "hgvs",
+          "vvhgvs",
       ],
       install_requires=[
           "attrs>=17.4.0",  # https://github.com/biocommons/hgvs/issues/473
           "biocommons.seqrepo",
-          "biopython==1.69",    # 1.70 fails on rtd due to numpy absence
+          "numpy",
+          "biopython==1.74",    # 1.70 fails on rtd due to numpy absence
           "bioutils>=0.2.2",
           "configparser>=3.3.0",
           "enum34",
-          "ipython<6",          # for hgvs-shell; >=6 for Py3 only
+          "ipython<6",          # for vvhgvs-shell; >=6 for Py3 only
           "parsley",
           "psycopg2-binary",
           "six",

@@ -13,9 +13,9 @@ if version_info < (3, ):
 else:
     import csv
 
-import hgvs.dataproviders.uta
-import hgvs.variantmapper
-import hgvs.parser
+import vvhgvs.dataproviders.uta
+import vvhgvs.variantmapper
+import vvhgvs.parser
 from support import CACHE
 
 
@@ -26,13 +26,14 @@ def gcp_file_reader(fn):
             continue
         yield rec
 
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 
 class TestHgvsCToPReal(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
-        cls._hm = hgvs.variantmapper.VariantMapper(cls.hdp)
-        cls._hp = hgvs.parser.Parser()
+        cls.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
+        cls._hm = vvhgvs.variantmapper.VariantMapper(cls.hdp)
+        cls._hp = vvhgvs.parser.Parser()
         cls._failed = []
 
     def test_c_to_p_ext(self):

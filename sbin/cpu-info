@@ -2,7 +2,7 @@
 # cpu-info -- report summary machine info
 
 # Motiviation: drone.io bots have wildly variable performance: the
-# hgvs test suite runs in ~5 minutes around 20% of the time, but in
+# vvhgvs test suite runs in ~5 minutes around 20% of the time, but in
 # ~75% cases it's kill because it exceeds 15 minutes.  Rarely it's
 # sometime in between.  This is driving me nuts.
 

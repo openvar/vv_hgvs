@@ -7,9 +7,9 @@ import unittest
 from Bio.Seq import Seq
 import attr
 
-import hgvs.parser
-import hgvs.utils.altseqbuilder as altseqbuilder
-from hgvs.utils.reftranscriptdata import RefTranscriptData
+import vvhgvs.parser
+import vvhgvs.utils.altseqbuilder as altseqbuilder
+from vvhgvs.utils.reftranscriptdata import RefTranscriptData
 
 import support.mock_input_source as mock_input_data_source
 
@@ -19,7 +19,7 @@ class TestAltSeqBuilder(unittest.TestCase):
     # root sequence = ""
     fn = os.path.join(os.path.dirname(__file__), "data", "sanity_cp.tsv")
     _datasource = mock_input_data_source.MockInputSource(fn)
-    _parser = hgvs.parser.Parser()
+    _parser = vvhgvs.parser.Parser()
 
     def test_substitution_start(self):
         hgvsc = "NM_999999.1:c.1A>T"

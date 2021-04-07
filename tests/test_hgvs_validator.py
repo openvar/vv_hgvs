@@ -7,14 +7,15 @@ import unittest
 
 import pytest
 
-from hgvs.exceptions import HGVSInvalidVariantError
-import hgvs.dataproviders.uta
-import hgvs.variantmapper
-import hgvs.parser
-import hgvs.validator
+from vvhgvs.exceptions import HGVSInvalidVariantError
+import vvhgvs.dataproviders.uta
+import vvhgvs.variantmapper
+import vvhgvs.parser
+import vvhgvs.validator
 from support import CACHE
 
-hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
+hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
 
 
 class Test_HGVSValidator(unittest.TestCase):
@@ -22,8 +23,8 @@ class Test_HGVSValidator(unittest.TestCase):
 
     @classmethod
     def setUp(cls):
-        cls.hp = hgvs.parser.Parser()
-        cls.vr = hgvs.validator.Validator(hdp)
+        cls.hp = vvhgvs.parser.Parser()
+        cls.vr = vvhgvs.validator.Validator(hdp)
 
     def test_wrapper(self):
         """Test that validator wrapper is working"""
@@ -47,8 +48,8 @@ class Test_HGVSIntrinsicValidator(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.hp = hgvs.parser.Parser()
-        cls.validate_int = hgvs.validator.IntrinsicValidator()
+        cls.hp = vvhgvs.parser.Parser()
+        cls.validate_int = vvhgvs.validator.IntrinsicValidator()
 
     def test_start_lte_end(self):
         """Test if start position is less <= end position"""
@@ -122,8 +123,8 @@ class Test_HGVSExtrinsicValidator(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.hp = hgvs.parser.Parser()
-        cls.validate_ext = hgvs.validator.ExtrinsicValidator(hdp)
+        cls.hp = vvhgvs.parser.Parser()
+        cls.validate_ext = vvhgvs.validator.ExtrinsicValidator(hdp)
 
     def test_valid_ref(self):
         """Test variants with valid reference seqeuences."""

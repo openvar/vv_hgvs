@@ -7,8 +7,8 @@ import unittest
 
 import pytest
 
-from hgvs.exceptions import HGVSParseError
-import hgvs.parser
+from vvhgvs.exceptions import HGVSParseError
+import vvhgvs.parser
 
 
 class Test_Position(unittest.TestCase):
@@ -16,7 +16,7 @@ class Test_Position(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.parser = hgvs.parser.Parser()
+        cls.parser = vvhgvs.parser.Parser()
 
     def test_parser_parse_shorthand(self):
         v = "NM_01234.5:c.22+1A>T"

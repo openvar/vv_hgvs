@@ -12,24 +12,25 @@ import unittest
 
 import pytest
 
-import hgvs
-import hgvs.dataproviders.uta
-import hgvs.parser
-import hgvs.sequencevariant
-import hgvs.variantmapper
-from hgvs.exceptions import HGVSError
+import vvhgvs
+import vvhgvs.dataproviders.uta
+import vvhgvs.parser
+import vvhgvs.sequencevariant
+import vvhgvs.variantmapper
+from vvhgvs.exceptions import HGVSError
 
 from support.crosschecker import CrossChecker, LineIterator
 from support import CACHE
 
 data_fn = os.path.join(os.path.dirname(__file__), "data", "clinvar.gz")
 
+txt_mode=os.environ.get("HGVS_CACHE_MODE", None)
 
 class Test_Clinvar(unittest.TestCase, CrossChecker):
     def setUp(self):
-        self.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
-        self.vm = hgvs.variantmapper.VariantMapper(self.hdp)
-        self.hp = hgvs.parser.Parser()
+        self.hdp = vvhgvs.dataproviders.uta.connect(mode=txt_mode, cache=CACHE)
+        self.vm = vvhgvs.variantmapper.VariantMapper(self.hdp)
+        self.hp = vvhgvs.parser.Parser()
 
     @pytest.mark.extra
     def test_clinvar(self, fn=data_fn, mod=None):

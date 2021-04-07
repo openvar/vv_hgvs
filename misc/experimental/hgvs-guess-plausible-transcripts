@@ -5,7 +5,7 @@ transcript-based variants
 
 # https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=104895271
 
-(3.6) snafu$ ./misc/experimental/hgvs-guess-plausible-transcripts 'TNFRSF1A:c.123T>C' 'TNFRSF1A:n.426T>C'
+(3.6) snafu$ ./misc/experimental/vvhgvs-guess-plausible-transcripts 'TNFRSF1A:c.123T>C' 'TNFRSF1A:n.426T>C'
 TNFRSF1A:c.123T>C	1	NM_001065.3:c.123T>C
 TNFRSF1A:n.426T>C	1	NR_144351.1:n.426T>C
 
@@ -17,12 +17,12 @@ import copy
 import logging
 import sys
 
-from hgvs.exceptions import HGVSInvalidVariantError
-import hgvs.dataproviders.uta
-import hgvs.normalizer
-import hgvs.parser
-import hgvs.variantmapper
-import hgvs.validator
+from vvhgvs.exceptions import HGVSInvalidVariantError
+import vvhgvs.dataproviders.uta
+import vvhgvs.normalizer
+import vvhgvs.parser
+import vvhgvs.variantmapper
+import vvhgvs.validator
 
 _logger = logging.getLogger(__name__)
 
@@ -66,12 +66,12 @@ def generate_plausible_variants(hdp, hv, v):
 if __name__ == "__main__":
     logging.basicConfig(level="INFO")
 
-    hdp = hgvs.dataproviders.uta.connect()
-    hp = hgvsparser = hgvs.parser.Parser()
-    hv = hgvs.validator.Validator(hdp, strict=False)
-    # hn = hgvs.normalizer.Normalizer(hdp)
+    hdp = vvhgvs.dataproviders.uta.connect()
+    hp = hgvsparser = vvhgvs.parser.Parser()
+    hv = vvhgvs.validator.Validator(hdp, strict=False)
+    # hn = vvhgvs.normalizer.Normalizer(hdp)
 
-    for hgvs in sys.argv[1:]:
+    for vvhgvs in sys.argv[1:]:
         v = hp.parse_hgvs_variant(hgvs)
         if v.type not in "cn":
             _logger.error("{v}: Only variant types c and n are supported".format(v=v))

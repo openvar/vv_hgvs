@@ -11,33 +11,33 @@ import unittest
 
 import pytest
 
-from hgvs.exceptions import HGVSError, HGVSDataNotAvailableError, HGVSParseError, HGVSInvalidVariantError, HGVSInvalidVariantError
-from hgvs.enums import Datum
-import hgvs.assemblymapper
-import hgvs.dataproviders.uta
-import hgvs.normalizer
-import hgvs.parser
-import hgvs.sequencevariant
-import hgvs.alignmentmapper
-import hgvs.validator
-import hgvs.variantmapper
+from vvhgvs.exceptions import HGVSError, HGVSDataNotAvailableError, HGVSParseError, HGVSInvalidVariantError, HGVSInvalidVariantError
+from vvhgvs.enums import Datum
+import vvhgvs.assemblymapper
+import vvhgvs.dataproviders.uta
+import vvhgvs.normalizer
+import vvhgvs.parser
+import vvhgvs.sequencevariant
+import vvhgvs.alignmentmapper
+import vvhgvs.validator
+import vvhgvs.variantmapper
 from support import CACHE
-
+mode_txt = os.environ.get("HGVS_CACHE_MODE", None)
 
 @pytest.mark.issues
 class Test_Issues(unittest.TestCase):
     def setUp(self):
-        self.hdp = hgvs.dataproviders.uta.connect(mode=os.environ.get("HGVS_CACHE_MODE", "run"), cache=CACHE)
-        self.vm = hgvs.variantmapper.VariantMapper(self.hdp, replace_reference=False)
-        self.vm_rr = hgvs.variantmapper.VariantMapper(self.hdp, replace_reference=True)
-        self.hp = hgvs.parser.Parser()
-        self.hn = hgvs.normalizer.Normalizer(self.hdp)
-        self.hv = hgvs.validator.IntrinsicValidator()
-        self.am37 = hgvs.assemblymapper.AssemblyMapper(
+        self.hdp = vvhgvs.dataproviders.uta.connect(mode=mode_txt, cache=CACHE)
+        self.vm = vvhgvs.variantmapper.VariantMapper(self.hdp, replace_reference=False)
+        self.vm_rr = vvhgvs.variantmapper.VariantMapper(self.hdp, replace_reference=True)
+        self.hp = vvhgvs.parser.Parser()
+        self.hn = vvhgvs.normalizer.Normalizer(self.hdp)
+        self.hv = vvhgvs.validator.IntrinsicValidator()
+        self.am37 = vvhgvs.assemblymapper.AssemblyMapper(
             self.hdp, replace_reference=True, assembly_name='GRCh37', alt_aln_method='splign')
-        self.am38 = hgvs.assemblymapper.AssemblyMapper(
+        self.am38 = vvhgvs.assemblymapper.AssemblyMapper(
             self.hdp, replace_reference=True, assembly_name='GRCh38', alt_aln_method='splign')
-        self.vn = hgvs.normalizer.Normalizer(self.hdp, shuffle_direction=3, cross_boundaries=True)
+        self.vn = vvhgvs.normalizer.Normalizer(self.hdp, shuffle_direction=3, cross_boundaries=True)
 
     def test_307_validator_rejects_valid_interval(self):
         # https://github.com/biocommons/hgvs/issues/307/
@@ -153,9 +153,9 @@ class Test_Issues(unittest.TestCase):
         self.assertEqual(str(vn), "NM_000535.5:c.1_3inv")
 
     def test_346_reject_partial_alignments(self):
-        # hgvs-346: verify that alignment data covers full-length transcript
+        # vvhgvs-346: verify that alignment data covers full-length transcript
         with self.assertRaises(HGVSDataNotAvailableError):
-            hgvs.alignmentmapper.AlignmentMapper(
+            vvhgvs.alignmentmapper.AlignmentMapper(
                 self.hdp, tx_ac="NM_001290223.1", alt_ac="NC_000010.10", alt_aln_method="splign")
 
     def test_349_incorrect_normalization_insGG_to_dup2(self):

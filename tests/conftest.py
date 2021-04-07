@@ -1,14 +1,14 @@
 import pytest
 
-import hgvs.easy
+import vvhgvs.easy
 
 
 @pytest.fixture(scope="session")
 def parser():
-    return hgvs.easy.parser
+    return vvhgvs.easy.parser
 
 @pytest.fixture(scope="session")
 def am38():
-    return hgvs.easy.am38
+    return vvhgvs.easy.am38
 
 

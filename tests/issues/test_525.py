@@ -1,8 +1,8 @@
-"""https://github.com/biocommons/hgvs/issues/525"""
+"""https://github.com/biocommons/vvhgvs/issues/525"""
 
 
 def test_525(parser, am38):
-    """https://github.com/biocommons/hgvs/issues/525"""
+    """https://github.com/biocommons/vvhgvs/issues/525"""
 
     # simple test case
     hgvs = "NM_000551.3:c.3_4insTAG"    # insert stop in phase at AA 2

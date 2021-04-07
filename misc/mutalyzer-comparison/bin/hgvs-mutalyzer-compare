@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-"""compare hgvs and mutalyzer outputs
+"""compare vvhgvs and mutalyzer outputs
 
-eg$ ./bin/hgvs-mutalyzer-compare -vv -eid -H acmg-g-current-hgvs.tsv -M acmg-g-current-mzr.tsv -B bermuda.tsv
+eg$ ./bin/vvhgvs-mutalyzer-compare -vv -eid -H acmg-g-current-vvhgvs.tsv -M acmg-g-current-mzr.tsv -B bermuda.tsv
 
 The input files must be formatted as TSV, following Mutalyzer's positionConverter format:
 
@@ -37,7 +37,7 @@ def parse_args(argv):
     # parse command line for configuration files
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
     ap.add_argument('--bermuda-filename', '-B', required=True)
-    ap.add_argument('--hgvs-filename', '-H', required=True)
+    ap.add_argument('--vvhgvs-filename', '-H', required=True)
     ap.add_argument('--match-eq-delins-on-location', '-e', default=False, action='store_true')
     ap.add_argument('--mutalyzer-filename', '-M', required=True)
     ap.add_argument('--rewrite-identity-substitutions', '-i', default=False, action='store_true')
@@ -136,7 +136,7 @@ if __name__ == '__main__':
         m_rec = m_recs[g_hgvs] if g_hgvs in m_recs else None
 
         if not h_rec:
-            logger.warn("no hgvs record for " + g_hgvs)
+            logger.warn("no vvhgvs record for " + g_hgvs)
             continue
         elif not m_rec:
             logger.warn("no Mutalyzer record for " + g_hgvs)
@@ -147,9 +147,9 @@ if __name__ == '__main__':
         m_cs_d = {v.partition(':')[0]: str(v) for v in m_rec['c_vars']}
 
         # "keys" are transcript accessions for most of the following code
-        hk = set(h_cs_d.keys())    # hgvs keys
+        hk = set(h_cs_d.keys())    # vvhgvs keys
         mk = set(m_cs_d.keys())    # mzr keys
-        hok = hk - mk    # hgvs only keys
+        hok = hk - mk    # vvhgvs only keys
         mok = mk - hk    # mzr only keys
         hmk = hk & mk    # intersection keys
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
             # no transcript accessions in common
             if len(hk) == len(mk) == 0: match = 'two-sided empty'
             elif len(hk) == 0:
-                match = 'one-sided empty (hgvs)'
+                match = 'one-sided empty (vvhgvs)'
                 h_missing |= mk
             elif len(mk) == 0:
                 match = 'one-sided empty (mutalyzer)'
@@ -208,7 +208,7 @@ if __name__ == '__main__':
 
     match_keys = [
         'two-sided empty',
-        'one-sided empty (hgvs)',
+        'one-sided empty (vvhgvs)',
         'one-sided empty (mutalyzer)',
         'perfect match',
         'intersection match',
@@ -222,5 +222,5 @@ if __name__ == '__main__':
     print("{n:6d} genomic variants compared".format(n=len(g_hgvs_keys)))
     print("{n:6d} transcript variants compared".format(n=hmk_tot))
 
-    print("{n:6d} transcripts not in hgvs ({acs})".format(n=len(h_missing), acs=','.join(h_missing)))
+    print("{n:6d} transcripts not in vvhgvs ({acs})".format(n=len(h_missing), acs=','.join(h_missing)))
     print("{n:6d} transcripts not in mutalyzer ({acs})".format(n=len(m_missing), acs=','.join(m_missing)))

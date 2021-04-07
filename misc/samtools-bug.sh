@@ -8,7 +8,7 @@
 
 # For samtools 0.1.19-96b5f2294a on x86_64 GNU/Linux (Ubuntu 13.10), running
 # script returns:
-#### snafu$ ~/projects/hgvs/misc/samtools-bug.sh 
+#### snafu$ ~/projects/vvhgvs/misc/samtools-bug.sh
 #### + samtools
 #### + head -3
 #### 

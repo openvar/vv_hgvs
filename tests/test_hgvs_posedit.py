@@ -5,20 +5,20 @@ import unittest
 
 import pytest
 
-import hgvs.edit
-import hgvs.location
-import hgvs.posedit
+import vvhgvs.edit
+import vvhgvs.location
+import vvhgvs.posedit
 
 
 @pytest.mark.quick
 @pytest.mark.models
 class Test_PosEdit(unittest.TestCase):
     def test_PosEdit(self):
-        pos = hgvs.location.Interval(
-            hgvs.location.BaseOffsetPosition(base=12, offset=+34), hgvs.location.BaseOffsetPosition(
+        pos = vvhgvs.location.Interval(
+            vvhgvs.location.BaseOffsetPosition(base=12, offset=+34), vvhgvs.location.BaseOffsetPosition(
                 base=56, offset=-78))
-        edit = hgvs.edit.NARefAlt("AA", None)
-        pe = hgvs.posedit.PosEdit(pos=pos, edit=edit)
+        edit = vvhgvs.edit.NARefAlt("AA", None)
+        pe = vvhgvs.posedit.PosEdit(pos=pos, edit=edit)
         self.assertEqual(pe.format(conf={'max_ref_length': None}), "12+34_56-78delAA")
 
 

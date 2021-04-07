@@ -2,13 +2,13 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 #
-# Tests for conversion of hgvs tags
+# Tests for conversion of vvhgvs tags
 #
 import os
 import unittest
 
-import hgvs.variantmapper as variantmapper
-import hgvs.parser
+import vvhgvs.variantmapper as variantmapper
+import vvhgvs.parser
 
 import support.mock_input_source as mock_input_data_source
 
@@ -18,7 +18,7 @@ class TestHgvsCToP(unittest.TestCase):
     fn = os.path.join(os.path.dirname(__file__), "data", "sanity_cp.tsv")
     _datasource = mock_input_data_source.MockInputSource(fn)
     _mapper = variantmapper.VariantMapper(_datasource, prevalidation_level="INTRINSIC")
-    _parser = hgvs.parser.Parser()
+    _parser = vvhgvs.parser.Parser()
 
     def test_silent(self):
         hgvsc = "NM_999999.1:c.6A>G"
@@ -253,11 +253,11 @@ class TestHgvsCToP(unittest.TestCase):
         msg = "hgvsc: {} hgvsp expected: {} actual: {}".format(hgvsc, hgvsp_expected, hgvsp_actual)
         self.assertEqual(hgvsp_expected, hgvsp_actual, msg)
 
-    # TODO - review other classes of hgvs tags (e.g. utr, intronic) - more use cases?
+    # TODO - review other classes of vvhgvs tags (e.g. utr, intronic) - more use cases?
     # 5'utr
     # intronic
     # after stop codon
-    # uncertainties in dups/dels (i.e. hgvs tags with ?)
+    # uncertainties in dups/dels (i.e. vvhgvs tags with ?)
 
 
 if __name__ == "__main__":
