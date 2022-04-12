@@ -55,7 +55,7 @@ setup(license="Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0)",
           "attrs>=17.4.0",  # https://github.com/biocommons/hgvs/issues/473
           "biocommons.seqrepo",
           "numpy",
-          "biopython>=1.74",    # 1.70 fails on rtd due to numpy absence
+          "biopython",
           "bioutils>=0.2.2",
           "configparser>=3.3.0",
           "enum34",
