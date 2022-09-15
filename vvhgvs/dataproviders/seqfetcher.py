@@ -8,6 +8,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import os
 import re
+from threading import Lock
 
 import bioutils.seqfetcher
 
@@ -33,6 +34,7 @@ class SeqFetcher(object):
         # If HGVS_SEQREPO_DIR is defined, we use seqrepo for *all* sequences
         # Otherwise, we fall back to remote sequence fetching
         seqrepo_dir = os.environ.get("HGVS_SEQREPO_DIR")
+        self.lock = Lock()
 
         if seqrepo_dir:
             from biocommons.seqrepo import SeqRepo
@@ -54,12 +56,16 @@ class SeqFetcher(object):
         _logger.info("Fetching sequences with " + self.source)
 
     def fetch_seq(self, ac, start_i=None, end_i=None):
+        self.lock.acquire()
         try:
-            return self.fetcher(ac, start_i, end_i)
+            fetched_seq = self.fetcher(ac, start_i, end_i)
         except Exception as ex:
+            self.lock.release()
             raise HGVSDataNotAvailableError("Failed to fetch {ac} from {self.source} ({ex})".format(
                 ac=ac, ex=ex, self=self))
-
+        else:
+            self.lock.release()
+            return fetched_seq
 
 
 # <LICENSE>
