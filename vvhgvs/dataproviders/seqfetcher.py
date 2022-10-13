@@ -43,6 +43,7 @@ class SeqFetcher(object):
             def _fetch_seq_seqrepo(ac, start_i=None, end_i=None):
                 return sr.fetch(ac, start_i, end_i)
 
+            self.check_same_thread = check_same_thread
             self.fetcher = _fetch_seq_seqrepo
             self.source = "SeqRepo ({})".format(seqrepo_dir)
         else:
@@ -56,15 +57,22 @@ class SeqFetcher(object):
         _logger.info("Fetching sequences with " + self.source)
 
     def fetch_seq(self, ac, start_i=None, end_i=None):
-        self.lock.acquire()
+        if self.check_same_thread is False:
+            self.lock.acquire()
         try:
             fetched_seq = self.fetcher(ac, start_i, end_i)
         except Exception as ex:
-            self.lock.release()
+            try:
+                self.lock.release()
+            except AttributeError:
+                pass
             raise HGVSDataNotAvailableError("Failed to fetch {ac} from {self.source} ({ex})".format(
                 ac=ac, ex=ex, self=self))
         else:
-            self.lock.release()
+            try:
+                self.lock.release()
+            except AttributeError:
+                pass
             return fetched_seq
 
 
