@@ -66,12 +66,16 @@ class SeqFetcher(object):
                 self.lock.release()
             except AttributeError:
                 pass
+            except RuntimeError:
+                pass
             raise HGVSDataNotAvailableError("Failed to fetch {ac} from {self.source} ({ex})".format(
                 ac=ac, ex=ex, self=self))
         else:
             try:
                 self.lock.release()
             except AttributeError:
+                pass
+            except RuntimeError:
                 pass
             return fetched_seq
 
