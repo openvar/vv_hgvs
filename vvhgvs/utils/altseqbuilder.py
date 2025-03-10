@@ -304,7 +304,10 @@ class AltSeqBuilder(object):
             # list is zero-based; seq pos is 1-based
             if pos.datum == Datum.CDS_START:
                 if pos.base < 0:    # 5' UTR
-                    result = cds_start - 1
+                    # This used to trim to cds_start -1 which broke dup over the
+                    # CDS start, VV works with the new code but it may break
+                    # some other use cases
+                    result = (cds_start -1) + pos.base
                 else:    # cds/intron
                     if pos.offset <= 0:
                         result = (cds_start - 1) + pos.base - 1
