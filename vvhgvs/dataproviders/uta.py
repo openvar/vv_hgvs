@@ -164,6 +164,8 @@ class UTABase(Interface):
             select hgnc, cds_start_i, cds_end_i, tx_ac, alt_ac, alt_aln_method
             from current_valid_mapped_transcript_per_gene_mv where hgnc_id=%s
             """,
+        # note that this gives inclusive results for input coordinates
+        # the </<= implicitly does 0 based (db) to 1 based (query) conversion
         "tx_for_region":"""
             select tx_ac,alt_ac,alt_strand,alt_aln_method,start_i,end_i
             from current_valid_mapped_transcript_spans_mv 
@@ -348,14 +350,18 @@ class UTABase(Interface):
 
     def get_tx_for_region(self, alt_ac, alt_aln_method, start_i, end_i):
         """
-        return transcripts that overlap given region
+        return transcripts that overlap given region, inclusive
 
         :param str alt_ac: reference sequence (e.g., NC_000007.13)
         :param str alt_aln_method: alignment method (e.g., splign)
-        :param int start_i: 5' bound of region
-        :param int end_i: 3' bound of region
+        :param int start_i: 5' bound of region (flipped on start_i > end_i)
+        :param int end_i: 3' bound of region (flipped on start_i > end_i)
         """
-        return self._fetchall(self._queries['tx_for_region'], [alt_ac, alt_aln_method, start_i, end_i])
+        if start_i > end_i:
+            start = end_i
+            end_i = start_i
+            start_i = start
+        return self._fetchall(self._queries['tx_for_region'], [alt_ac, alt_aln_method, end_i, start_i])
 
     def get_tx_identity_info(self, tx_ac):
         """returns features associated with a single transcript.
