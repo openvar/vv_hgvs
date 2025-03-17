@@ -531,8 +531,10 @@ class UTA_postgresql(UTABase):
         if self.application_name is None:
             st = inspect.stack()
             self.application_name = os.path.basename(st[-1][1])
+        # fix for allowing '/' in host names (when actually UNIX socket files)
+        host_or_socketfile = self.url.hostname.replace('%2F','/')
         conn_args = dict(
-            host=self.url.hostname,
+            host=host_or_socketfile,
             port=self.url.port,
             database=self.url.database,
             user=self.url.username,
@@ -666,7 +668,6 @@ def _parse_url(db_url):
     u'schema'
 
     """
-
     return ParseResult(urlparse.urlparse(db_url))
 
 
