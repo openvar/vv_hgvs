@@ -102,6 +102,8 @@ class Interface(six.with_metaclass(abc.ABCMeta, object)):
             maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_tx_limits)
         self.get_agg_exon_aln = lru_cache(
             maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_agg_exon_aln)
+        self.get_tx_seq_anno =lru_cache(
+                maxsize=vvhgvs.global_config.lru_cache.maxsize, mode=self.mode, cache=self.cache)(self.get_tx_seq_anno)
 
 
         def _split_version_string(v):

@@ -192,6 +192,7 @@ class UTABase(Interface):
             from tx_exon_aln_mv where tx_ac=%s and cigar is not NULL
             """,
         "tx_seq":"select seq from seq S join seq_anno SA on S.seq_id=SA.seq_id where ac=%s",
+        "tx_seq_anno":"select len,seq_id,descr from seq_anno join seq using(seq_id) where ac=%s",
         "tx_similar":"select * from tx_similarity_v where tx_ac1 = %s",
         "tx_to_pro":"select * from associated_accessions where tx_ac = %s order by pro_ac desc",
     }
@@ -500,6 +501,12 @@ class UTABase(Interface):
             return rows[0]['pro_ac']
         except IndexError:
             return None
+
+    def get_tx_seq_anno(self,tx_ac):
+        """Return the length, checksum type seq_id, and description for a
+        transcript, in that order.
+        """
+        return self._fetchone(self._queries['tx_seq_anno'], [tx_ac])
 
     def get_assembly_map(self, assembly_name):
         """return a list of accessions for the specified assembly name (e.g., GRCh38.p5)
