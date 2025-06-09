@@ -1,0 +1,64 @@
+[project]
+name = "vvhgvs"
+dynamic = ["version"]
+description = "HGVS Parser, Formatter, Mapper, Validator"
+readme = "doc/description.txt"
+license = {text = "Apache License 2.0"}
+authors = [{name = "HGVS Contributors", email = "hgvs-discuss@gmail.com"}]
+keywords = [
+    "bioinformatics",
+    "computational biology",
+    "genome variants",
+    "genome variation",
+    "genomic variants",
+    "genomic variation",
+    "genomics",
+    "vvhgvs"
+]
+urls = { "Homepage" = "https://github.com/openvar/vv_hgvs" }
+requires-python = ">=2.7"
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 3",
+    "Topic :: Database :: Front-Ends",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Medical Science Apps."
+]
+
+dependencies = [
+    "attrs>=17.4.0",
+    "biocommons.seqrepo",
+    "numpy",
+    "biopython",
+    "bioutils>=0.2.2",
+    "configparser>=3.3.0",
+    "enum34",
+    "ipython",
+    "parsley",
+    "psycopg2-binary",
+    "six"
+]
+
+[project.optional-dependencies]
+py2-only = ["unicodecsv"]
+
+[project.scripts]
+vvhgvs-shell = "vvhgvs.shell:shell"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["vvhgvs*"]
+exclude = []
+
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
