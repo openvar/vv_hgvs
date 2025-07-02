@@ -177,11 +177,18 @@ class Normalizer(object):
                 return 0, float("inf")
             else:
                 # Get genomic sequence access number for this transcript
-                map_info = self.hdp.get_tx_mapping_options(var.ac)
-                if not map_info:
-                    raise HGVSDataNotAvailableError("No mapping info available for {ac}".format(ac=var.ac))
-                map_info = [item for item in map_info if item["alt_aln_method"] == self.alt_aln_method]
-                alt_ac = map_info[0]["alt_ac"]
+                if var.rel_ac:# transcript is already relative to a genomic ac
+                    alt_ac = var.rel_ac
+                else:
+                    map_info = self.hdp.get_tx_mapping_options(var.ac)
+                    if not map_info:
+                        raise HGVSDataNotAvailableError(
+                                "No mapping info available for {ac}".format(
+                                    ac=var.ac))
+                    map_info = [
+                            item for item in map_info if item[
+                                "alt_aln_method"] == self.alt_aln_method]
+                    alt_ac = map_info[0]["alt_ac"]
 
                 # Get tx info
                 tx_info = self.hdp.get_tx_info(var.ac, alt_ac, self.alt_aln_method)
