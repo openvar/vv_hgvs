@@ -13,7 +13,7 @@ from vvhgvs.enums import ValidationLevel
 from vvhgvs.utils.validation import validate_type_ac_pair
 
 
-@attr.s(slots=True, repr=False)
+@attr.s(slots=True, repr=False,eq=False)
 class SequenceVariant(object):
     """
     represents a basic HGVS variant.  The only requirement is that each
@@ -23,6 +23,7 @@ class SequenceVariant(object):
     ac = attr.ib()
     type = attr.ib()
     posedit = attr.ib()
+    rel_ac = attr.ib(default='')
 
     def format(self, conf=None):
         """Formatting the stringification of sequence variants
@@ -45,6 +46,32 @@ class SequenceVariant(object):
     def __repr__(self):
         return "{0}({1})".format(self.__class__.__name__, ", ".join(
             (a.name + "=" + str(getattr(self, a.name))) for a in self.__attrs_attrs__))
+
+    def __eq__(self,other):
+        """Count transcripts with unset relative accessions as equal to any set acc
+
+        This is done so that a simple t1->g->t2 for the same tx ac will asses t1==t2 as True
+        """
+        if not isinstance(other,SequenceVariant):
+            return False
+        if self.ac != other.ac or self.type != other.type or self.posedit != other.posedit:
+            return False
+        #if self.rel_ac and other.rel_ac and self.rel_ac != other.rel_ac:
+        #    return False
+        return True
+
+    def __ne__(self,other):
+        """Count transcripts with unset relative accessions as equal to any set acc
+
+        This is done so that a simple t1->g->t2 for the same tx ac will asses t1==t2 as True
+        """
+        if not isinstance(other,SequenceVariant):
+            return True
+        if self.ac != other.ac or self.type != other.type or self.posedit != other.posedit:
+            return True
+        #if self.rel_ac and other.rel_ac and self.rel_ac != other.rel_ac:
+        return False
+
 
     def fill_ref(self, hdp):
         hm = vvhgvs.variantmapper.VariantMapper(hdp)

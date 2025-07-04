@@ -91,17 +91,26 @@ class AssemblyMapper(VariantMapper):
         return self._maybe_normalize(var_out)
 
     def c_to_g(self, var_c):
-        alt_ac = self._alt_ac_for_tx_ac(var_c.ac)
+        if var_c.rel_ac:
+            alt_ac = var_c.rel_ac
+        else:
+            alt_ac = self._alt_ac_for_tx_ac(var_c.ac)
         var_out = super(AssemblyMapper, self).c_to_g(var_c, alt_ac, alt_aln_method=self.alt_aln_method)
         return self._maybe_normalize(var_out)
 
     def n_to_g(self, var_n):
-        alt_ac = self._alt_ac_for_tx_ac(var_n.ac)
+        if var_n.rel_ac:
+            alt_ac = var_n.rel_ac
+        else:
+            alt_ac = self._alt_ac_for_tx_ac(var_n.ac)
         var_out = super(AssemblyMapper, self).n_to_g(var_n, alt_ac, alt_aln_method=self.alt_aln_method)
         return self._maybe_normalize(var_out)
 
     def t_to_g(self, var_t):
-        alt_ac = self._alt_ac_for_tx_ac(var_t.ac)
+        if var_t.rel_ac:
+            alt_ac = var_t.rel_ac
+        else:
+            alt_ac = self._alt_ac_for_tx_ac(var_t.ac)
         var_out = super(AssemblyMapper, self).t_to_g(var_t, alt_ac, alt_aln_method=self.alt_aln_method)
         return self._maybe_normalize(var_out)
 

@@ -155,7 +155,11 @@ class VariantMapper(object):
         #     pos_g = tm.n_to_g(pos_n)
         #     edit_n = vvhgvs.edit.NARefAlt(ref='', alt=self._get_altered_sequence(tm.strand, pos_g, var_g))
         # pos_n.uncertain = var_g.posedit.pos.uncertain
-        var_n = vvhgvs.sequencevariant.SequenceVariant(ac=tx_ac, type="n", posedit=vvhgvs.posedit.PosEdit(pos_n, edit_n))
+        var_n = vvhgvs.sequencevariant.SequenceVariant(
+                ac=tx_ac,
+                rel_ac=var_g.ac,
+                type="n",
+                posedit=vvhgvs.posedit.PosEdit(pos_n, edit_n))
         if self.replace_reference:
             self._replace_reference(var_n)
         return var_n
@@ -233,7 +237,11 @@ class VariantMapper(object):
         #     pos_g = tm.c_to_g(pos_c)
         #     edit_c = vvhgvs.edit.NARefAlt(ref='', alt=self._get_altered_sequence(tm.strand, pos_g, var_g))
         # pos_c.uncertain = var_g.posedit.pos.uncertain
-        var_c = vvhgvs.sequencevariant.SequenceVariant(ac=tx_ac, type="c", posedit=vvhgvs.posedit.PosEdit(pos_c, edit_c))
+        var_c = vvhgvs.sequencevariant.SequenceVariant(
+                ac=tx_ac,
+                rel_ac=var_g.ac,
+                type="c",
+                posedit=vvhgvs.posedit.PosEdit(pos_c, edit_c))
         if self.replace_reference:
             self._replace_reference(var_c)
         return var_c
@@ -304,7 +312,11 @@ class VariantMapper(object):
             edit_n = copy.deepcopy(var_c.posedit.edit)
         else:
             raise HGVSUnsupportedOperationError("Only NARefAlt/Dup/Inv types are currently implemented")
-        var_n = vvhgvs.sequencevariant.SequenceVariant(ac=var_c.ac, type="n", posedit=vvhgvs.posedit.PosEdit(pos_n, edit_n))
+        var_n = vvhgvs.sequencevariant.SequenceVariant(
+                ac=var_c.ac,
+                rel_ac=var_c.rel_ac,
+                type="n",
+                posedit=vvhgvs.posedit.PosEdit(pos_n, edit_n))
         if self.replace_reference:
             self._replace_reference(var_n)
         return var_n
@@ -332,7 +344,11 @@ class VariantMapper(object):
             edit_c = copy.deepcopy(var_n.posedit.edit)
         else:
             raise HGVSUnsupportedOperationError("Only NARefAlt/Dup/Inv types are currently implemented")
-        var_c = vvhgvs.sequencevariant.SequenceVariant(ac=var_n.ac, type="c", posedit=vvhgvs.posedit.PosEdit(pos_c, edit_c))
+        var_c = vvhgvs.sequencevariant.SequenceVariant(
+                ac=var_n.ac,
+                rel_ac=var_n.rel_ac,
+                type="c",
+                posedit=vvhgvs.posedit.PosEdit(pos_c, edit_c))
         if self.replace_reference:
             self._replace_reference(var_c)
         return var_c
