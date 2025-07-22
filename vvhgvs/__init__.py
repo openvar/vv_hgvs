@@ -21,7 +21,7 @@ SequenceVariant(ac=NC_000007.13, type=g, posedit=36561662C>T)
 >>> var_g.posedit.pos.start
 SimplePosition(base=36561662, uncertain=False)
 
-# format by stringification 
+# format by stringification
 >>> str(var_g)
 'NC_000007.13:g.36561662C>T'
 
@@ -52,9 +52,15 @@ BaseOffsetPosition(base=1582, offset=0, datum=Datum.CDS_START, uncertain=False)
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-import pkg_resources
 import re
 import warnings
+
+try:
+    # Use stdlib importlib.metadata when available (Python 3.8+)
+    from importlib.metadata import version, PackageNotFoundError
+except ImportError:
+    # For Python < 3.8 use the backport
+    from importlib_metadata import version, PackageNotFoundError
 
 from .config import global_config    # noqa (importing symbol)
 
@@ -62,19 +68,19 @@ logger = logging.getLogger(__name__)
 
 _is_released_version = False
 try:
-    __version__ = pkg_resources.get_distribution("vvhgvs").version
+    __version__ = version("vvhgvs")
     # TODO: match other valid release tags, like .post\d+
     if re.match(r"^\d+\.\d+\.\d+$", __version__) is not None:
         _is_released_version = True
-except pkg_resources.DistributionNotFound as e:
-    warnings.warn("can't get __version__ because %s package isn't installed" % __package__, Warning)
+except PackageNotFoundError:
+    warnings.warn("can't get __version__ because vvhgvs package isn't installed", Warning)
     __version__ = None
 
 # Enable DeprecationWarnings for the vvhgvs package
 # N.B. The module name is provided as a regexp to the module *path*
-warnings.filterwarnings('default', '', DeprecationWarning, '.*\Wlib\W.*\Wvvhgvs\W.*')
+warnings.filterwarnings('default', '', DeprecationWarning, '.*\\Wlib\\W.*\\Wvvhgvs\\W.*')
 
-logger.info("vvhgvs " + __version__ + "; released: " + str(_is_released_version))
+logger.info("vvhgvs " + str(__version__) + "; released: " + str(_is_released_version))
 
 # <LICENSE>
 # Copyright 2018 HGVS Contributors (https://github.com/biocommons/hgvs)

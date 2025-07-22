@@ -19,12 +19,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # - one: input is a single value
 # - string: input is a string; test each character in the string separately
 # - list: input is a list delimited by a pipe character ("|")
-# Expected: expected result (if stringifying input does not return the same answer, e,g. "+1" -> "1")
+# Expected: expected result (if stringifying input does not return the same answer, e.g. "+1" -> "1")
 # - if expected is left blank, then it is assumed that stringifying the parsed input returns the same answer.
 #
 
 import os
-import pkg_resources
 import pprint
 import re
 import unittest
@@ -34,6 +33,12 @@ if version_info < (3, ):
     import unicodecsv as csv
 else:
     import csv
+
+# Fallback-compatible import for importlib.resources
+try:
+    from importlib.resources import files
+except ImportError:
+    from importlib_resources import files  # pip install importlib_resources
 
 import vvhgvs.parser
 from six.moves import map
@@ -51,8 +56,8 @@ class TestGrammarFull(unittest.TestCase):
         """ensure that all rules in grammar have tests"""
 
         grammar_rule_re = re.compile(r"^(\w+)")
-        grammar_fn = pkg_resources.resource_filename(__name__, "../vvhgvs/_data/hgvs.pymeta")
-        with open(grammar_fn, "r") as f:
+        grammar_file_path = files("vvhgvs._data").joinpath("hgvs.pymeta")
+        with open(grammar_file_path, "r") as f:
             grammar_rules = set(r.group(1) for r in filter(None, map(grammar_rule_re.match, f)))
 
         with open(self._test_fn, "r") as f:
