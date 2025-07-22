@@ -8,7 +8,7 @@ You should not import hgvs.config directly.
 Config are read from an ini-format file.  `hgvs.config` implements a
 thin wrapper on the ConfigParser instance in order to provide
 *attribute* based lookups (rather than key). It also returns
-heuristically typed values (e.g., "True" becomes True). 
+heuristically typed values (e.g., "True" becomes True).
 
 Although keys are settable, they are stringified on setting and
 type-inferred on getting, which means that round-tripping works only
@@ -32,7 +32,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from configparser import ConfigParser, ExtendedInterpolation
 from copy import copy
 import logging
-from pkg_resources import resource_stream
+import importlib.resources as resources  # <- Replaces pkg_resources
 import re
 
 logger = logging.getLogger(__name__)
@@ -119,6 +119,9 @@ def _val_xform(v):
 
 
 _default_config = Config()
-_default_config.read_stream(resource_stream(__name__, "_data/defaults.ini"))
+
+# ✅ Minimal replacement of pkg_resources
+with resources.files(__package__ + "._data").joinpath("defaults.ini").open("rb") as f:
+    _default_config.read_stream(f)
 
 global_config = copy(_default_config)
