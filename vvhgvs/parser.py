@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Provides parser for HGVS strings and HGVS-related conceptual
 components, such as intronic-offset coordiates
-
 """
 
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -9,8 +8,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import copy
 import re
-
-from pkg_resources import resource_filename
+import importlib.resources as resources  # ✅ Replacement for pkg_resources
 
 import bioutils.sequences
 import ometa.runtime
@@ -37,72 +35,19 @@ parsley.ParseError.__hash__ = parse_error_hash
 
 
 class Parser(object):
-    """Provides comprehensive parsing of HGVS varaint strings (*i.e.*,
-    variants represented according to the Human Genome Variation
-    Society recommendations) into Python representations.  The class
-    wraps a Parsing Expression Grammar, exposing rules of that grammar
-    as methods (prefixed with `parse_`) that parse an input string
-    according to the rule.  The class exposes all rules, so that it's
-    possible to parse both full variant representations as well as
-    components, like so:
+    """Provides comprehensive parsing of HGVS variant strings into structured Python representations."""
 
-    >>> hp = Parser()
-    >>> v = hp.parse_hgvs_variant("NM_01234.5:c.22+1A>T")
-    >>> v
-    SequenceVariant(ac=NM_01234.5, type=c, posedit=22+1A>T)
-    >>> v.posedit.pos
-    BaseOffsetInterval(start=22+1, end=22+1, uncertain=False)
-    >>> i = hp.parse_c_interval("22+1")
-    >>> i
-    BaseOffsetInterval(start=22+1, end=22+1, uncertain=False)
+    def __init__(self, grammar_fn=None, expose_all_rules=False):
+        if grammar_fn is None:
+            # ✅ Replacing pkg_resources.resource_filename
+            grammar_fn = resources.files(__package__ + "._data").joinpath("hgvs.pymeta")
 
-    The `parse_hgvs_variant` and `parse_c_interval` methods correspond
-    to the `hgvs_variant` and `c_interval rules` in the grammar,
-    respectively.
-
-    As a convenience, the Parser provides the `parse` method as a
-    shorthand for `parse_hgvs_variant`:
-    >>> v = hp.parse("NM_01234.5:c.22+1A>T")
-    >>> v
-    SequenceVariant(ac=NM_01234.5, type=c, posedit=22+1A>T)
-
-    Because the methods are generated on-the-fly and depend on the
-    grammar that is loaded at runtime, a full list of methods is not
-    available in the documentation.  However, the list of
-    rules/methods is available via the `rules` instance variable.
-
-    A few notable methods are listed below:
-
-    `parse_hgvs_variant()` parses any valid HGVS string supported by the grammar.
-
-      >>> hp.parse_hgvs_variant("NM_01234.5:c.22+1A>T")
-      SequenceVariant(ac=NM_01234.5, type=c, posedit=22+1A>T)
-      >>> hp.parse_hgvs_variant("NP_012345.6:p.Ala22Trp")
-      SequenceVariant(ac=NP_012345.6, type=p, posedit=Ala22Trp)
-
-    The `hgvs_variant` rule iteratively attempts parsing using the
-    major classes of HGVS variants. For slight improvements in
-    efficiency, those rules may be invoked directly:
-
-      >>> hp.parse_p_variant("NP_012345.6:p.Ala22Trp")
-      SequenceVariant(ac=NP_012345.6, type=p, posedit=Ala22Trp)
-
-    Similarly, components of the underlying structure may be parsed
-    directly as well:
-
-      >>> hp.parse_c_posedit("22+1A>T")
-      PosEdit(pos=22+1, edit=A>T, uncertain=False)
-      >>> hp.parse_c_interval("22+1")
-      BaseOffsetInterval(start=22+1, end=22+1, uncertain=False)
-
-    """
-
-    __default_grammar_fn = resource_filename(__name__, "_data/hgvs.pymeta")
-
-    def __init__(self, grammar_fn=__default_grammar_fn, expose_all_rules=False):
         self._grammar_fn = grammar_fn
+        with open(self._grammar_fn, "r") as f:
+            grammar_text = f.read()
+
         self._grammar = parsley.makeGrammar(
-            open(grammar_fn, "r").read(), {
+            grammar_text, {
                 "vvhgvs": vvhgvs,
                 "bioutils": bioutils,
                 "copy": copy
@@ -111,35 +56,19 @@ class Parser(object):
         self._expose_rule_functions(expose_all_rules)
 
     def parse(self, v):
-        """parse HGVS variant `v`, returning a SequenceVariant
-
-        :param str v: an HGVS-formatted variant as a string
-        :rtype: SequenceVariant
-
-        """
+        """parse HGVS variant `v`, returning a SequenceVariant"""
         return self.parse_hgvs_variant(v)
 
     def _expose_rule_functions(self, expose_all_rules=False):
-        """add parse functions for public grammar rules
-
-        Defines a function for each public grammar rule, based on
-        introspecting the grammar. For example, the `c_interval` rule
-        is exposed as a method `parse_c_interval` and used like this::
-
-          Parser.parse_c_interval('26+2_57-3') -> Interval(...)
-
-        """
+        """add parse functions for public grammar rules"""
 
         def make_parse_rule_function(rule_name):
-            "builds a wrapper function that parses a string with the specified rule"
-
             def rule_fxn(s):
                 try:
                     return self._grammar(s).__getattr__(rule_name)()
                 except ometa.runtime.ParseError as exc:
                     raise HGVSParseError("{s}: char {exc.position}: {reason}".format(
                         s=s, exc=exc, reason=exc.formatReason()))
-
             rule_fxn.__doc__ = "parse string s using `%s' rule" % rule_name
             return rule_fxn
 
