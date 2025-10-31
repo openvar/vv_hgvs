@@ -677,10 +677,12 @@ dependencies = [
     { name = "psycopg2" },
 ]
 
-[package.dev-dependencies]
+[package.optional-dependencies]
 align = [
     { name = "uta-align" },
 ]
+
+[package.dev-dependencies]
 dev = [
     { name = "deptry" },
     { name = "ipython" },
@@ -712,10 +714,11 @@ requires-dist = [
     { name = "ipython" },
     { name = "parsley" },
     { name = "psycopg2" },
+    { name = "uta-align", marker = "extra == 'align'", specifier = "~=0.3" },
 ]
+provides-extras = ["align"]
 
 [package.metadata.requires-dev]
-align = [{ name = "uta-align", specifier = "~=0.3" }]
 dev = [
     { name = "deptry", specifier = ">=0.23" },
     { name = "ipython" },
