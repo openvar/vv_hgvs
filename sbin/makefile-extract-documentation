@@ -12,25 +12,23 @@ import re
 
 CSI = "\033["
 BOLD = CSI + "1m"
-COMMAND_COLOR = CSI + "36m"
-HEADER_COLOR = CSI + "32m"
-RESET = CSI + "0m"
-SECTION_COLOR = CSI + "95m"
 UNDERLINE = CSI + "4m"
+RESET = CSI + "0m"
+HEADER_COLOR = CSI + "38;5;208m"
+SECTION_COLOR = ""  # CSI + "38;5;99m"
+COMMAND_COLOR = CSI + "38;5;208m"
 
-print(f"""🌟🌟 {BOLD}{HEADER_COLOR}{UNDERLINE}MAKE TARGETS{RESET} 🌟🌟
-
-usage: make [target ...]
+print("""usage: make [target ...]
 
 biocommons packages consolidate command invocations in make targets to promote
-consistency across developers and environments (including GitHub actions). Using
-other invocations is not supported and will be ignored in bug reports.
+consistency across developers and environments, including GitHub actions. Using
+other invocation methods is not supported and will be ignored in bug reports.
 
 This makefile supports the following targets:
 """)
 
 for line in fileinput.input():  # noqa: SIM115
     if m := re.match(r"#= (.+)", line):
-        print(f"\n{BOLD}{UNDERLINE}{SECTION_COLOR}{m.group(1)}{RESET}")
+        print(f"\n{UNDERLINE}{SECTION_COLOR}{m.group(1)}{RESET}")
     elif m := re.match(r"([-\s\w]+):.+?##\s+(.+)", line):
         print(f"{BOLD}{COMMAND_COLOR}{m.group(1):<20}{RESET}{m.group(2)}")

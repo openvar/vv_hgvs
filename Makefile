@@ -16,10 +16,8 @@ export HGVS_SEQREPO_URL=http://localhost:5000/seqrepo
 .DEFAULT_GOAL := help
 default: help
 
-COLOR_RESET=\033[0m
-COLOR_CYAN_BOLD=\033[1;36m
 define INFO_MESSAGE
-	@echo "⏩$(COLOR_CYAN_BOLD)$(1)$(COLOR_RESET)"
+	@echo "⏩\033[1;38;5;208m$(1)\033[0m"
 endef
 
 ############################################################################
@@ -35,10 +33,10 @@ help: ## Display help message
 install: devready
 .PHONY: devready
 devready: ## Prepare local dev env: Create virtual env, install the pre-commit hooks
-	$(call INFO_MESSAGE, "Prepare local dev env: Create virtual env and install the pre-commit hooks")
+	$(call INFO_MESSAGE, Prepare local dev env: Create virtual env and install the pre-commit hooks)
 	uv sync --dev
 	uv run pre-commit install
-	@echo '⚠️ Activate the virtual env with `source .venv/bin/activate`'
+	$(call INFO_MESSAGE, Activate the virtual env with \`source .venv/bin/activate\`)
 
 .PHONY: build
 build: ## Build package
