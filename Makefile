@@ -16,6 +16,12 @@ export HGVS_SEQREPO_URL=http://localhost:5000/seqrepo
 .DEFAULT_GOAL := help
 default: help
 
+COLOR_RESET=\033[0m
+COLOR_CYAN_BOLD=\033[1;36m
+define INFO_MESSAGE
+	@echo "⏩$(COLOR_CYAN_BOLD)$(1)$(COLOR_RESET)"
+endef
+
 ############################################################################
 #= BASIC USAGE
 
@@ -29,20 +35,20 @@ help: ## Display help message
 install: devready
 .PHONY: devready
 devready: ## Prepare local dev env: Create virtual env, install the pre-commit hooks
-	$(call INFO_MESSAGE, Prepare local dev env: Create virtual env and install the pre-commit hooks)
+	$(call INFO_MESSAGE, "Prepare local dev env: Create virtual env and install the pre-commit hooks")
 	uv sync --dev
 	uv run pre-commit install
-	@echo '⚠️ You must activate the virtual env with `source .venv/bin/activate`'
+	@echo '⚠️ Activate the virtual env with `source .venv/bin/activate`'
 
 .PHONY: build
 build: ## Build package
-	$(call INFO_MESSAGE, "Building package")
+	$(call INFO_MESSAGE, "Build package")
 	rm -fr dist
 	uv build
 
 .PHONY: publish
-publish: build ## publish package to PyPI
-	$(call INFO_MESSAGE, "Publishing package")
+publish: build ## Publish package to PyPI
+	$(call INFO_MESSAGE, "Publish package to PyPI")
 	uv publish  # Requires UV_PUBLISH_TOKEN or Trusted Publishing setup
 
 ############################################################################
@@ -62,12 +68,13 @@ test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"
 	uv run pytest --cov=. --cov-report=xml
 
-test-learn: ## add new data to test data cache
+test-learn: ## Add new data to test data cache
+	@echo "📈 Add new data to test data cache"
 	HGVS_CACHE_MODE=learn uv run pytest -s
-test-relearn: ## destroy and rebuild test data cache
+test-relearn: ## Destroy and rebuild test data cache
 	rm -fr tests/data/cache-py3.hdp tests/cassettes
 	HGVS_CACHE_MODE=learn uv run pytest -s
-test-relearn-iteratively: ## destroy and rebuild test data cache (biocommons/hgvs#760
+test-relearn-iteratively: ## Destroy and rebuild test data cache (biocommons/hgvs#760
 	rm -fr tests/data/cache-py3.hdp tests/cassettes
 	find tests/ -name 'test*.py' | HGVS_CACHE_MODE=learn xargs -tn1 -- uv run pytest --no-cov -x -s
 
@@ -103,7 +110,7 @@ cleaner: clean  ## Remove files and directories that are easily rebuilt
 	find . \( -name "*.orig" -o -name "*.rej" \) -exec rm -frv {} +
 
 .PHONY: cleanest
-cleanest: cleaner  ## Remove all files that can be rebuilt
+cleanest: cleaner  ## Remove files and directories that can be rebuilt
 	$(call INFO_MESSAGE, "Remove files and directories that can be rebuilt")
 	rm -frv .eggs .tox .venv venv
 

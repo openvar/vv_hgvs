@@ -52,7 +52,6 @@
 .spyproject
 .tags
 .tags.mk
-.tox
 .tox/
 .venv
 .vscode
@@ -70,12 +69,10 @@ build
 build/
 celerybeat-schedule
 celerybeat.pid
-cover
 cover/
 coverage.xml
 cython_debug/
 develop-eggs/
-dist
 dist/
 dmypy.json
 doc*/changelog/*/.tags
@@ -91,12 +88,6 @@ downloads/
 eggs/
 env.bak/
 env/
-examples/*_files
-examples/.ipynb_checkpoints
-hg-git-remap.pl
-hgvs.dot
-hgvs.sfood
-hgvs.svg
 htmlcov/
 instance/
 ipython_config.py
@@ -114,7 +105,6 @@ profile_default/
 sdist/
 share/python-wheels/
 target/
-tests/data/ext.out
 var/
 venv.bak/
 venv/

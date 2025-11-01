@@ -74,8 +74,8 @@ align = ["uta-align~=0.3"]
 
 [project.urls]
 Documentation = "https://hgvs.readthedocs.io/"
-Issues = "https://github.com/biocommons/hgvs/issues"
 Homepage = "https://github.com/biocommons/hgvs"
+Issues = "https://github.com/biocommons/hgvs/issues"
 Repository = "https://github.com/biocommons/hgvs/"
 
 [tool.coverage]
@@ -104,6 +104,8 @@ branch = true
 omit = [
   "*_test.py",
   "*/test/*",
+  "*/tests/*",
+
   "hgvs/__init__.py",
   "hgvs/dataproviders/interface.py",
   "hgvs/dataproviders/ncbi.py",
@@ -146,15 +148,14 @@ doctest_optionflags = [
   "NORMALIZE_WHITESPACE"
 ]
 markers = [
+  "network: tests that require network connectivity",
+  "slow: slow tests that should be run infrequently",
+
   "extra",
-  "issues",
   "mapping",
   "models",
-  "network: tests that require network connectivity",
   "normalization",
   "quick",
-  "regression",
-  "slow: slow tests that should be run infrequently",
   "validation",
 ]
 testpaths = ["tests"]
@@ -238,11 +239,10 @@ zip-safe = true
 [tool.setuptools.package-data]
 # "*" = ["_data/*/*.json.gz"]
 # "*" = ["*.gz", "*.json", "*.yaml"]
-hgvs = ["_data/*"]
+"*" = ["_data/*"]
 
 [tool.setuptools.packages.find]
 exclude = ["*.pyc", "__pycache__"]
-# namespaces = true
 where = ["src"]
 
 [tool.setuptools_scm]
