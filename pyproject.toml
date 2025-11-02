@@ -64,7 +64,7 @@ keywords = [
 license = "Apache-2.0"
 name = "hgvs"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11, <3.14"  # as-of 2025-11-02, PyO3 fails to build pydantic on 3.14
 
 [project.optional-dependencies]
 align = ["uta-align~=0.3"]

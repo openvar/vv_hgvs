@@ -7,10 +7,10 @@
 
 # TESTING sources
 # UTA_DB_URL must be accessible at test time (for now)
-export HGVS_CACHE_MODE=
+# export HGVS_CACHE_MODE=
 _UTAPW=anonymous
 export UTA_DB_URL=postgresql://anonymous:${_UTAPW}@uta.biocommons.org:5432/uta/uta_20241220
-export HGVS_SEQREPO_URL=http://localhost:5000/seqrepo
+# export HGVS_SEQREPO_URL=http://localhost:5000/seqrepo
 
 
 .DEFAULT_GOAL := help
@@ -68,13 +68,13 @@ test: ## Test the code with pytest
 
 test-learn: ## Add new data to test data cache
 	@echo "📈 Add new data to test data cache"
-	HGVS_CACHE_MODE=learn uv run pytest -s
+	HGVS_CACHE_MODE=learn VCR_RECORD_MODE=new_episodes uv run pytest -s
 test-relearn: ## Destroy and rebuild test data cache
 	rm -fr tests/data/cache-py3.hdp tests/cassettes
-	HGVS_CACHE_MODE=learn uv run pytest -s
+	HGVS_CACHE_MODE=learn VCR_RECORD_MODE=new_episodes uv run pytest -s
 test-relearn-iteratively: ## Destroy and rebuild test data cache (biocommons/hgvs#760
 	rm -fr tests/data/cache-py3.hdp tests/cassettes
-	find tests/ -name 'test*.py' | HGVS_CACHE_MODE=learn xargs -tn1 -- uv run pytest --no-cov -x -s
+	find tests/ -name 'test*.py' | HGVS_CACHE_MODE=learn VCR_RECORD_MODE=new_episodes xargs -tn1 -- uv run pytest --no-cov -x -s
 
 
 
