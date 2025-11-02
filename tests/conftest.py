@@ -24,7 +24,7 @@ def vcr_config(request):  # noqa: ARG001
     """See https://pytest-vcr.readthedocs.io/en/latest/configuration/"""
     return {
         "match_on": ["method", "uri"],
-        "record_mode": os.environ.get("VCR_RECORD_MODE", "new_episodes"),
+        "record_mode": os.environ.get("VCR_RECORD_MODE", "none"),
         "before_record_request": remove_request_headers,
         "before_record_response": remove_response_headers,
     }
