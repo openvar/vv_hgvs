@@ -1,12 +1,12 @@
 import os
 
 import pytest
-from support import CACHE
 
-from hgvs.assemblymapper import AssemblyMapper
 import hgvs.easy
+from hgvs.assemblymapper import AssemblyMapper
 from hgvs.extras.babelfish import Babelfish
 from hgvs.variantmapper import VariantMapper
+from support import CACHE
 
 
 def remove_request_headers(request):
@@ -20,11 +20,11 @@ def remove_response_headers(response):
 
 
 @pytest.fixture(scope="module")
-def vcr_config(request):
+def vcr_config(request):  # noqa: ARG001
     """See https://pytest-vcr.readthedocs.io/en/latest/configuration/"""
     return {
         "match_on": ["method", "uri"],
-        "record_mode": os.environ.get("VCR_RECORD_MODE", "new_episodes"),
+        "record_mode": os.environ.get("VCR_RECORD_MODE", "none"),
         "before_record_request": remove_request_headers,
         "before_record_response": remove_response_headers,
     }
@@ -65,9 +65,9 @@ def babelfish38(hdp):
     return Babelfish(hdp, assembly_name="GRCh38")
 
 
-def pytest_report_header(config):
+def pytest_report_header(config):  # noqa: ARG001
     env_vars = ["UTA_DB_URL", "HGVS_SEQREPO_URL", "HGVS_CACHE_MODE"]
-    rv = [f"{ev}: {os.environ.get(ev)}" for ev in sorted(env_vars)]
+    rv = [f"{ev}={os.environ.get(ev)}" for ev in sorted(env_vars)]
     rv += [f"hgvs.easy.hdp={hgvs.easy.hdp.url}"]
     rv += [f"{hgvs.easy.hdp.seqfetcher.source=}"]
     return "\n".join(rv)
