@@ -57,7 +57,7 @@ class TestSelenocysteineTranslations(unittest.TestCase):
         NC_000001.10:g.26139280T>G is a genomic variant that should map to
         a coding variant and then to a protein variant affecting selenocysteine.
         """
-        hgvs_g = "NC_000001.11:g.25802094G>T"
+        hgvs_g = "NC_000001.11:g.25812789T>C"
         var_g = self.hp.parse_hgvs_variant(hgvs_g)
 
         # Map genomic variant to coding variant for NM_020451.3
@@ -71,7 +71,7 @@ class TestSelenocysteineTranslations(unittest.TestCase):
         assert var_p is not None
         assert var_p.type == "p"
         assert str(var_p).startswith("NP_")
-        assert str(var_p) == "NP_065184.2:p.(Sec127Leu)"
+        assert str(var_p) == "NP_065184.2:p.(Sec462Arg)"
 
     def test_selenocysteine_protein_variant_format(self):
         """Test that protein variants involving selenocysteine use correct format.
