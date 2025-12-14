@@ -14,7 +14,6 @@ import hgvs.assemblymapper
 import hgvs.dataproviders.uta
 import hgvs.parser
 import hgvs.variantmapper
-from hgvs.exceptions import HGVSError
 from support import CACHE
 
 
@@ -58,26 +57,21 @@ class TestSelenocysteineTranslations(unittest.TestCase):
         NC_000001.10:g.26139280T>G is a genomic variant that should map to
         a coding variant and then to a protein variant affecting selenocysteine.
         """
-        hgvs_g = "NC_000001.10:g.26139280T>G"
+        hgvs_g = "NC_000001.11:g.25802094G>T"
         var_g = self.hp.parse_hgvs_variant(hgvs_g)
 
         # Map genomic variant to coding variant for NM_020451.3
         # First, we need to find which transcript this maps to
         # For this test, we'll try to map it to NM_020451.3 if it overlaps
-        try:
-            var_c = self.am38.g_to_c(var_g, "NM_020451.3")
-            var_p = self.am38.c_to_p(var_c)
 
-            # Verify that the protein variant is created successfully
-            assert var_p is not None
-            assert var_p.type == "p"
-            assert str(var_p).startswith("NP_")
-            assert str(var_p) == "NP_020451.3:p.(Pro127CysfsTer?)"
-        except (HGVSError, Exception) as e:
-            # If the variant doesn't map to this transcript, that's okay for this test
-            # We're primarily testing that selenocysteine handling doesn't break
-            # The important thing is that if it does map, it should produce valid output
-            self.skipTest(f"Variant does not map to NM_020451.3: {e}")
+        var_c = self.am38.g_to_c(var_g, "NM_020451.3")
+        var_p = self.am38.c_to_p(var_c)
+
+        # Verify that the protein variant is created successfully
+        assert var_p is not None
+        assert var_p.type == "p"
+        assert str(var_p).startswith("NP_")
+        assert str(var_p) == "NP_065184.2:p.(Sec127Leu)"
 
     def test_selenocysteine_protein_variant_format(self):
         """Test that protein variants involving selenocysteine use correct format.
