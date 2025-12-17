@@ -22,7 +22,7 @@ dev = [
   "sphinxcontrib-fulltoc >= 1.1",
   "toml-sort",
   "tox-uv>=1.28",
-  "vcrpy"
+  "vcrpy",
 ]
 
 [project]
@@ -33,9 +33,9 @@ classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python",
   "Topic :: Scientific/Engineering :: Bio-Informatics",
   "Topic :: Scientific/Engineering :: Medical Science Apps.",
@@ -74,8 +74,8 @@ align = ["uta-align~=0.3"]
 
 [project.urls]
 Documentation = "https://hgvs.readthedocs.io/"
-Homepage = "https://github.com/biocommons/hgvs"
-Issues = "https://github.com/biocommons/hgvs/issues"
+Homepage = "https://github.com/biocommons/hgvs/"
+Issues = "https://github.com/biocommons/hgvs/issues/"
 Repository = "https://github.com/biocommons/hgvs/"
 
 [tool.coverage]
@@ -166,7 +166,7 @@ testpaths = ["tests"]
 fix = true
 line-length = 100
 src = ["src", "tests"]
-target-version = "py39"
+target-version = "py313"
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -197,9 +197,12 @@ ignore = [
   "E117",
   "E501",
   "E731",
+  "N801",
+  "N802",
   "PLR0913",
+  "RET504",
   "S321",
-  "W191"
+  "W191",
 ]
 select = [
   "A", # https://docs.astral.sh/ruff/rules/#flake8-builtins-a
