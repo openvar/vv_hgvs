@@ -75,7 +75,7 @@ align = ["uta-align~=0.3"]
 [project.urls]
 Documentation = "https://hgvs.readthedocs.io/"
 Homepage = "https://github.com/biocommons/hgvs/"
-Issues = "https://github.com/biocommons/hgvs/issues"
+Issues = "https://github.com/biocommons/hgvs/issues/"
 Repository = "https://github.com/biocommons/hgvs/"
 
 [tool.coverage]
