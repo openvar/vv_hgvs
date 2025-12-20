@@ -103,7 +103,7 @@ class VariantMapper:
         if self._validator:
             self._validator.validate(var_g)
         var_g.fill_ref(self.hdp)
-        mapper = self._fetch_alignment_mapper(
+        mapper = self._fetch_AlignmentMapper(
             tx_ac=tx_ac, alt_ac=var_g.ac, alt_aln_method=alt_aln_method
         )
         if mapper.is_coding_transcript:
@@ -151,7 +151,7 @@ class VariantMapper:
             raise HGVSInvalidVariantError("Expected a g. or m. variant; got " + str(var_g))
         if self._validator:
             self._validator.validate(var_g)
-        mapper = self._fetch_alignment_mapper(
+        mapper = self._fetch_AlignmentMapper(
             tx_ac=tx_ac, alt_ac=var_g.ac, alt_aln_method=alt_aln_method
         )
 
@@ -219,7 +219,7 @@ class VariantMapper:
         if self._validator:
             self._validator.validate(var_n)
         var_n.fill_ref(self.hdp, alt_ac=alt_ac, alt_aln_method=alt_aln_method)
-        mapper = self._fetch_alignment_mapper(
+        mapper = self._fetch_AlignmentMapper(
             tx_ac=var_n.ac, alt_ac=alt_ac, alt_aln_method=alt_aln_method
         )
         pos_g = mapper.n_to_g(var_n.posedit.pos)
@@ -265,7 +265,7 @@ class VariantMapper:
             self._validator.validate(var_g)
 
         var_g.fill_ref(self.hdp)
-        mapper = self._fetch_alignment_mapper(
+        mapper = self._fetch_AlignmentMapper(
             tx_ac=tx_ac, alt_ac=var_g.ac, alt_aln_method=alt_aln_method
         )
         pos_c = mapper.g_to_c(var_g.posedit.pos)
@@ -315,7 +315,7 @@ class VariantMapper:
         if self._validator:
             self._validator.validate(var_c)
         var_c.fill_ref(self.hdp, alt_ac=alt_ac, alt_aln_method=alt_aln_method)
-        mapper = self._fetch_alignment_mapper(
+        mapper = self._fetch_AlignmentMapper(
             tx_ac=var_c.ac, alt_ac=alt_ac, alt_aln_method=alt_aln_method
         )
         pos_g = mapper.c_to_g(var_c.posedit.pos)
@@ -366,11 +366,11 @@ class VariantMapper:
         if self._validator:
             self._validator.validate(var_c)
         var_c.fill_ref(self.hdp, alt_ac=alt_ac, alt_aln_method=alt_aln_method)
-        mapper = self._fetch_alignment_mapper(
+        mapper = self._fetch_AlignmentMapper(
             tx_ac=var_c.ac, alt_ac=var_c.ac, alt_aln_method="transcript"
         )
         pos_n = mapper.c_to_n(var_c.posedit.pos)
-        if isinstance(var_c.posedit.edit, (hgvs.edit.NARefAlt, hgvs.edit.Dup, hgvs.edit.Inv)):
+        if isinstance(var_c.posedit.edit, hgvs.edit.NARefAlt | hgvs.edit.Dup | hgvs.edit.Inv):
             edit_n = copy.deepcopy(var_c.posedit.edit)
         else:
             msg = "Only NARefAlt/Dup/Inv types are currently implemented"
@@ -405,11 +405,11 @@ class VariantMapper:
         if self._validator:
             self._validator.validate(var_n)
         var_n.fill_ref(self.hdp, alt_ac=alt_ac, alt_aln_method=alt_aln_method)
-        mapper = self._fetch_alignment_mapper(
+        mapper = self._fetch_AlignmentMapper(
             tx_ac=var_n.ac, alt_ac=var_n.ac, alt_aln_method="transcript"
         )
         pos_c = mapper.n_to_c(var_n.posedit.pos)
-        if isinstance(var_n.posedit.edit, (hgvs.edit.NARefAlt, hgvs.edit.Dup, hgvs.edit.Inv)):
+        if isinstance(var_n.posedit.edit, hgvs.edit.NARefAlt | hgvs.edit.Dup | hgvs.edit.Inv):
             edit_c = copy.deepcopy(var_n.posedit.edit)
         else:
             msg = "Only NARefAlt/Dup/Inv types are currently implemented"
@@ -508,14 +508,14 @@ class VariantMapper:
 
             # For c. variants, we need coords on underlying sequences
             if var.type == "c":
-                mapper = self._fetch_alignment_mapper(
+                mapper = self._fetch_AlignmentMapper(
                     tx_ac=var.ac, alt_ac=alt_ac, alt_aln_method=alt_aln_method
                 )
                 pos = mapper.c_to_g(var.posedit.pos)
                 ac = alt_ac
                 _type = "g"
             if var.type == "n":
-                mapper = self._fetch_alignment_mapper(
+                mapper = self._fetch_AlignmentMapper(
                     tx_ac=var.ac, alt_ac=alt_ac, alt_aln_method=alt_aln_method
                 )
                 pos = mapper.n_to_g(var.posedit.pos)
@@ -523,7 +523,7 @@ class VariantMapper:
                 _type = "g"
         elif var.type == "c":
             # For c. variants, we need coords on underlying sequences
-            mapper = self._fetch_alignment_mapper(
+            mapper = self._fetch_AlignmentMapper(
                 tx_ac=var.ac, alt_ac=var.ac, alt_aln_method="transcript"
             )
             pos = mapper.c_to_n(var.posedit.pos)
@@ -559,7 +559,7 @@ class VariantMapper:
         return var
 
     @lru_cache(maxsize=hgvs.global_config.lru_cache.maxsize)
-    def _fetch_alignment_mapper(self, tx_ac, alt_ac, alt_aln_method):
+    def _fetch_AlignmentMapper(self, tx_ac, alt_ac, alt_aln_method):
         """
         Get a new AlignmentMapper for the given transcript accession (ac),
         possibly caching the result.
