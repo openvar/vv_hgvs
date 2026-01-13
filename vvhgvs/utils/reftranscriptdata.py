@@ -1,7 +1,6 @@
 from Bio.Seq import Seq
 
 from vvhgvs.exceptions import HGVSDataNotAvailableError
-from vvhgvs.utils import unusual_transcripts
 
 
 class RefTranscriptData(object):
@@ -20,11 +19,17 @@ class RefTranscriptData(object):
         # coding sequences that are not divisable by 3 are not yet supported
         tx_seq_to_translate = tx_seq[cds_start - 1:cds_stop]
 
+        # handle both bad CDS lengths due to poly-a completion and broken data
         if len(tx_seq_to_translate) % 3 != 0:
-            require_A = unusual_transcripts.polyadnylate()
-            if tx_ac in require_A:
-                tx_seq_to_translate = f"{tx_seq_to_translate}A"
-            else:
+            odd_basecount = len(tx_seq_to_translate) % 3
+            poly_a_fixable = False
+            if odd_basecount == 2 and tx_seq_to_translate[-2:] == 'TA':
+                poly_a_fixable = True
+                tx_seq_to_translate = tx_seq_to_translate + 'A'
+            elif odd_basecount == 1 and tx_seq_to_translate[-1] == 'T':
+                poly_a_fixable = True
+                tx_seq_to_translate = tx_seq_to_translate + 'AA'
+            if not poly_a_fixable:
                 raise NotImplementedError(
                     "CdsIncompleteError: Transcript {} is not supported because its coding sequence (CDS) length of {} "
                     "is not divisible by 3.".format(
