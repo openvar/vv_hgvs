@@ -191,6 +191,13 @@ class UTABase(Interface):
             select distinct tx_ac,alt_ac,alt_aln_method 
             from tx_exon_aln_mv where tx_ac=%s and cigar is not NULL
             """,
+        # mapping_options with a warning for gapped mappings, and strand info
+        # [^\d]\dN fetches introns smaller than 10 (ENSEMBL micro introns as should-be genomic deletions)
+        "tx_mapping_options_gap_warn":"""
+            SELECT tx_ac,alt_ac,alt_aln_method, not_quite_cigar SIMILAR TO '%%[DI]%%|%%[^\d]\dN%%' as gapped, alt_strand
+            FROM full_tx_aln_w_nq_cigar_mv
+            WHERE tx_ac=%s
+            """,
         "tx_seq":"select seq from seq S join seq_anno SA on S.seq_id=SA.seq_id where ac=%s",
         "tx_seq_anno":"select len,seq_id,descr from seq_anno join seq using(seq_id) where ac=%s",
         "tx_similar":"select * from tx_similarity_v where tx_ac1 = %s",
@@ -431,7 +438,7 @@ class UTABase(Interface):
                             "{tx_ac},alt_ac={alt_ac},alt_aln_method={alt_aln_method})".format(
                                 n=len(rows), tx_ac=tx_ac, alt_ac=alt_ac, alt_aln_method=alt_aln_method))
 
-    def get_tx_mapping_options(self, tx_ac):
+    def get_tx_mapping_options(self, tx_ac,gap_warn=False):
         """Return all transcript alignment sets for a given transcript
         accession (tx_ac); returns empty list if transcript does not
         exist.  Use this method to discovery possible mapping options
@@ -439,6 +446,8 @@ class UTABase(Interface):
 
         :param tx_ac: transcript accession with version (e.g., 'NM_000051.3')
         :type tx_ac: str
+        :param gap_warn: whether to return gap warnings for gapped mappings
+        :type: Bool
 
         # database output
         -[ RECORD 1 ]--+------------
@@ -457,7 +466,10 @@ class UTABase(Interface):
         alt_aln_method | blat
 
         """
-        rows = self._fetchall(self._queries['tx_mapping_options'], [tx_ac])
+        if gap_warn:
+            rows = self._fetchall(self._queries['tx_mapping_options_gap_warn'], [tx_ac])
+        else:
+            rows = self._fetchall(self._queries['tx_mapping_options'], [tx_ac])
         return rows
 
     def get_similar_transcripts(self, tx_ac):
