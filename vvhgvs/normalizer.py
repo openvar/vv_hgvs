@@ -223,16 +223,6 @@ class Normalizer(object):
                 left = exon_starts[i]
                 right = exon_ends[i]
 
-                if cds_start is None:
-                    pass
-                else:
-                    pass  # allow unrestricted shuffling across 5′ UTR ↔ CDS
-
-                if cds_end is None:
-                    pass
-                else:
-                    pass  # allow unrestricted shuffling across CDS ↔ 3′ UTR
-
                 return left, right
         else:
             # For variant type of g and m etc.
