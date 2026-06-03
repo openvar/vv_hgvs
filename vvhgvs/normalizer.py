@@ -190,11 +190,6 @@ class Normalizer(object):
                                 "alt_aln_method"] == self.alt_aln_method]
                     alt_ac = map_info[0]["alt_ac"]
 
-                # Get tx info
-                tx_info = self.hdp.get_tx_info(var.ac, alt_ac, self.alt_aln_method)
-                cds_start = tx_info["cds_start_i"]
-                cds_end = tx_info["cds_end_i"]
-
                 # Get exon info
                 exon_info = self.hdp.get_tx_exons(var.ac, alt_ac, self.alt_aln_method)
                 exon_starts = [exon["tx_start_i"] for exon in exon_info]
