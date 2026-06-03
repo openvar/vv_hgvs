@@ -223,28 +223,20 @@ class Normalizer(object):
                         "Unsupported normalization of variants spanning the exon-intron boundary ({var})".format(
                             var=var))
 
+                # Updates to the code stop the correct normalisation of UTR to CDS.
+                # Logic, they belong to the reference, unlike introns, so shuffling should not be restricted
                 left = exon_starts[i]
                 right = exon_ends[i]
 
                 if cds_start is None:
                     pass
-                elif var.posedit.pos.end.base - 1 < cds_start:
-                    right = min(right, cds_start)
-                elif var.posedit.pos.start.base - 1 >= cds_start:
-                    left = max(left, cds_start)
                 else:
-                    raise HGVSUnsupportedOperationError(
-                        "Unsupported normalization of variants spanning the UTR-exon boundary ({var})".format(var=var))
+                    pass  # allow unrestricted shuffling across 5′ UTR ↔ CDS
 
                 if cds_end is None:
                     pass
-                elif var.posedit.pos.start.base - 1 >= cds_end:
-                    left = max(left, cds_end)
-                elif var.posedit.pos.end.base - 1 < cds_end:
-                    right = min(right, cds_end)
                 else:
-                    raise HGVSUnsupportedOperationError(
-                        "Unsupported normalization of variants spanning the exon-UTR boundary ({var})".format(var=var))
+                    pass  # allow unrestricted shuffling across CDS ↔ 3′ UTR
 
                 return left, right
         else:
