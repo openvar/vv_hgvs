@@ -152,27 +152,116 @@ class TranscriptMapper(object):
             end=vvhgvs.location.BaseOffsetPosition(base=end_bo[0], offset=end_bo[1], datum=Datum.SEQ_START),
             uncertain=g_interval.uncertain)
 
-    def n_to_g(self, n_interval):
+    def n_to_g(self, n_interval,is_ins=False):
         """convert a transcript cDNA (n.) interval to a genomic (g.) interval"""
+        # 6 cases to handle:
+        # 1 position 1 & 2 differ in exon of origin,
+        # 2 position 1 & 2 differ in exon edge for same exon boundary
+        # 3 position 1 & 2 share exon boundary and edge, but span exon edge
+        # 4 position 1 & 2 share exon boundary and edge, but span exon edge also ins
+        # 5 position 1 & 2 both from the same exon and direction/edge
+        # 6 position 1 & 2 no exon diff no offset
+        # 1 & 6 need no extra offset handling but all other options need at least some
 
         assert self.strand in [1, -1], "strand = " + str(self.strand) + "; must be 1 or -1"
+        end_exon_edge = False
+        is_ins_pair = is_ins
+        # if we have an intronic offset from the same, or differing, exon ends handle each end as a base
+        # position, then work out the correct edge, alternatively if we touch the end of the intron handle
+        # as ins
+        if is_ins and (n_interval.start.offset or n_interval.end.offset) and not ((
+                n_interval.start.offset == 0 or n_interval.end.offset ==0
+                ) and n_interval.start.base == n_interval.end.base):
+            is_ins_pair =False
 
+        if n_interval.start.offset or n_interval.end.offset:
+            if not n_interval.start.base == n_interval.end.base:
+                if self.strand > 0:
+                    end_exon_edge = n_interval.end.base
+                    n_interval.end.base = n_interval.start.base
+                else:
+                    end_exon_edge = n_interval.start.base
+                    n_interval.start.base = n_interval.end.base
+        frs, fre = _hgvs_coord_to_ci(n_interval.start.base, n_interval.end.base,is_ins=is_ins_pair)
         if self.strand == 1:
-            frs, fre = _hgvs_coord_to_ci(n_interval.start.base, n_interval.end.base)
             start_offset, end_offset = n_interval.start.offset, n_interval.end.offset
         elif self.strand == -1:
-            frs, fre = _hgvs_coord_to_ci(n_interval.start.base, n_interval.end.base)
             fre, frs = self.tgt_len - frs, self.tgt_len - fre
             start_offset, end_offset = self.strand * n_interval.end.offset, self.strand * n_interval.start.offset
 
         # returns the genomic range start (grs) and end (gre)
         grs, gre = self.im.map_tgt_to_ref(frs, fre, max_extent=False)
         grs, gre = grs + self.gc_offset, gre + self.gc_offset
-        gs, ge = grs + start_offset, gre + end_offset
+
+        # if exon end is a gap we need to account for this, exon edge is treated as 1bp in length
+        # and we take the appropriate start/end of the 1 base span
+        if not start_offset:
+            gs = grs
+        elif start_offset < 0 and not is_ins_pair or start_offset > 0 and is_ins_pair:
+            gs = grs + start_offset
+        else:
+            gs = gre + start_offset
+
+        # handle second edge if needed
+        if end_exon_edge and not n_interval.start.base == end_exon_edge:
+            frs, fre = _hgvs_coord_to_ci(end_exon_edge, end_exon_edge, is_ins=is_ins_pair)
+            if self.strand != 1:
+                fre, frs = self.tgt_len - frs, self.tgt_len - fre
+            grs2, gre2 = self.im.map_tgt_to_ref(frs, fre, max_extent=False)
+            grs2, gre2 = grs2 + self.gc_offset, gre2 + self.gc_offset
+        else:
+            grs2, gre2 = grs, gre
+
+        if not end_offset:
+            ge = gre2
+        elif end_offset < 0 and not is_ins_pair or end_offset > 0 and is_ins_pair:
+            ge = grs2 + end_offset
+        else:
+            ge = gre2 + end_offset
+
+        ins_type = False
+        # We now have 0 based coordinates for non offset bases, unfortunately the output is
+        # mixed, any offset bases are 1 based, worse to avoid off-by-1 issues for -ve offsets
+        # with non-genomic start bases we have to start from the innermost edge (so need +1)
+        if grs == gre2 or (is_ins and (start_offset or end_offset)):
+            ins_type = True
+            if not(start_offset or end_offset):
+                # exonic, with no intron just split bases
+                hgvs_start = gs
+                hgvs_end = ge + 1
+            elif not start_offset or not end_offset:
+                # intron edge spanning
+                if start_offset > 0 or end_offset >0:
+                    hgvs_start = gs
+                    hgvs_end = ge
+                else:
+                    hgvs_start = gs +1
+                    hgvs_end = ge +1
+            else:
+                # inside intron
+                if start_offset < 0:
+                    hgvs_start = gs + 1
+                else:
+                    hgvs_start = gs
+                if end_offset < 0:
+                    hgvs_end = ge + 1
+                else:
+                    hgvs_end = ge
+        else:
+            # intronic offsets are 1 based by nature, but we are -1 of final loc for -ve
+            # offsets, non offset bases get +1 if first base no change for second
+            if start_offset and start_offset < 0 or not start_offset:
+                hgvs_start = gs + 1
+            else:
+                hgvs_start = gs
+            if end_offset and end_offset < 0:
+                hgvs_end = ge + 1
+            else:
+                hgvs_end = ge
         return vvhgvs.location.Interval(
-            start=vvhgvs.location.SimplePosition(_ci_to_hgvs_coord(gs, ge)[0], uncertain=n_interval.start.uncertain),
-            end=vvhgvs.location.SimplePosition(_ci_to_hgvs_coord(gs, ge)[1], uncertain=n_interval.end.uncertain),
-            uncertain=n_interval.uncertain)
+            start=vvhgvs.location.SimplePosition(hgvs_start, uncertain=n_interval.start.uncertain),
+            end=vvhgvs.location.SimplePosition(hgvs_end, uncertain=n_interval.end.uncertain),
+            uncertain=n_interval.uncertain), ins_type
 
     def n_to_c(self, n_interval):
         """convert a transcript cDNA (n.) interval to a transcript CDS (c.) interval"""
@@ -247,9 +336,9 @@ class TranscriptMapper(object):
         """convert a genomic (g.) interval to a transcript CDS (c.) interval"""
         return self.n_to_c(self.g_to_n(g_interval))
 
-    def c_to_g(self, c_interval):
+    def c_to_g(self, c_interval, is_ins=False):
         """convert a transcript CDS (c.) interval to a genomic (g.) interval"""
-        return self.n_to_g(self.c_to_n(c_interval))
+        return self.n_to_g(self.c_to_n(c_interval), is_ins=is_ins)
 
 
 def _ci_to_hgvs_coord(s, e):
@@ -263,10 +352,14 @@ def _ci_to_hgvs_coord(s, e):
     return (None if s is None else _ci_to_hgvs(s), None if e is None else _ci_to_hgvs(e) - 1)
 
 
-def _hgvs_coord_to_ci(s, e):
+def _hgvs_coord_to_ci(s, e, is_ins=False):
     """convert start,end interval in inclusive, discontinuous HGVS coordinates
     (..,-2,-1,1,2,..) to continuous interbase (right-open) coordinates
     (..,-2,-1,0,1,..)"""
+    if is_ins:
+        # may also be true for s, s+1 or e-1, e base pairs, can input here without offset
+        #assert s is not None and e and s == e -1, "ins coordinates must be a pair of adjacent bases"
+        return (s, s)
 
     def _hgvs_to_ci(c):
         assert c != 0, "received CDS coordinate 0; expected ..,-2,-1,1,1,..."

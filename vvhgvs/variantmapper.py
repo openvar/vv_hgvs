@@ -182,21 +182,39 @@ class VariantMapper(object):
         if self._validator:
             self._validator.validate(var_n)
         var_n.fill_ref(self.hdp)
+        is_ins = False
+        if var_n.posedit.edit.type == "ins":
+            is_ins = True
         tm = self._fetch_AlignmentMapper(tx_ac=var_n.ac, alt_ac=alt_ac, alt_aln_method=alt_aln_method)
-        pos_g = tm.n_to_g(var_n.posedit.pos)
+        pos_g, is_ins = tm.n_to_g(var_n.posedit.pos,is_ins=is_ins)
         # Following has been changed to match vvhgvs v1.1.3
         edit_g = self._convert_edit_check_strand(tm.strand, var_n.posedit.edit)
-        # if not pos_g.uncertain:
-        #     edit_g = self._convert_edit_check_strand(tm.strand, var_n.posedit.edit)
-        #     if edit_g.type == 'ins' and pos_g.end - pos_g.start > 1:
-        #         pos_g.start.base += 1
-        #         pos_g.end.base -= 1
-        #         edit_g.ref = ''
-        # else:
-        #     # variant at alignment gap
-        #     pos_n = tm.g_to_n(pos_g)
-        #     edit_g = vvhgvs.edit.NARefAlt(ref='', alt=self._get_altered_sequence(tm.strand, pos_n, var_n))
-        # pos_g.uncertain = var_n.posedit.pos.uncertain
+        # even without replace reference we can't return ins from non ins without setting ref to none
+        # and won't have an alt if we don't set it for Dup/Inv either
+        # this might also turn del inside non genomic n bases into ==
+        if is_ins and not var_n.posedit.edit.type == 'ins':
+            if isinstance(edit_g, vvhgvs.edit.NARefAlt):
+                if edit_g.alt:
+                    edit_g.ref = None
+                else:
+                    edit_g.ref=''
+            elif isinstance(edit_g, vvhgvs.edit.Dup):
+                ref = edit_g.ref + edit_g.ref
+                if not ref:
+                    ref = self.hdp.get_seq(var_n.ac, var_n.posedit.pos.start.base - 1, var_n.posedit.pos.end.base)
+                    ref = ref + ref
+                edit_g = vvhgvs.edit.NARefAlt(ref='', alt=ref)
+            elif isinstance(edit_g, vvhgvs.edit.Inv):
+                ref = edit_g.ref
+                if not ref:
+                    ref = self.hdp.get_seq(var_n.ac, var_n.posedit.pos.start.base - 1, var_n.posedit.pos.end.base)
+                edit_g = vvhgvs.edit.NARefAlt(ref='',alt=ref)
+            # switch new alt to match ref direction
+            if tm.strand == -1 and edit_g.alt:
+                edit_g.alt = reverse_complement(edit_g.alt)
+        elif var_n.posedit.edit.type == 'ins' and not is_ins:
+            edit_g.ref = ''
+
         var_g = vvhgvs.sequencevariant.SequenceVariant(ac=alt_ac, type="g", posedit=vvhgvs.posedit.PosEdit(pos_g, edit_g))
         if self.replace_reference:
             self._replace_reference(var_g)
@@ -265,24 +283,42 @@ class VariantMapper(object):
             self._validator.validate(var_c)
         var_c.fill_ref(self.hdp)
         tm = self._fetch_AlignmentMapper(tx_ac=var_c.ac, alt_ac=alt_ac, alt_aln_method=alt_aln_method)
-        pos_g = tm.c_to_g(var_c.posedit.pos)
+        is_ins = False
+        if var_c.posedit.edit.type == "ins":
+            is_ins = True
+        pos_g, is_ins = tm.c_to_g(var_c.posedit.pos,is_ins=is_ins)
         # Following has been changed to match vvhgvs v1.1.3
         edit_g = self._convert_edit_check_strand(tm.strand, var_c.posedit.edit)
-        # if not pos_g.uncertain:
-        #     edit_g = self._convert_edit_check_strand(tm.strand, var_c.posedit.edit)
-        #     if edit_g.type == 'ins' and pos_g.end - pos_g.start > 1:
-        #         pos_g.start.base += 1
-        #         pos_g.end.base -= 1
-        #         edit_g.ref = ''
-        # else:
-        #     # variant at alignment gap
-        #     var_n = copy.deepcopy(var_c)
-        #     var_n.posedit.pos = tm.c_to_n(var_c.posedit.pos)
-        #     var_n.type = 'n'
-        #     pos_n = tm.g_to_n(pos_g)
-        #     edit_g = vvhgvs.edit.NARefAlt(ref='', alt=self._get_altered_sequence(tm.strand, pos_n, var_n))
-        # pos_g.uncertain = var_c.posedit.pos.uncertain
-        var_g = vvhgvs.sequencevariant.SequenceVariant(ac=alt_ac, type="g", posedit=vvhgvs.posedit.PosEdit(pos_g, edit_g))
+        # even without replace reference we can't return ins from non ins without setting ref to none
+        # and won't have an alt if we don't set it for Dup/Inv either
+        # this might also turn del inside non genomic c bases into ==
+        if is_ins and not var_c.posedit.edit.type == 'ins':
+            pos_n = tm.c_to_n(var_c.posedit.pos)
+            if isinstance(edit_g, vvhgvs.edit.NARefAlt):
+                if edit_g.alt:
+                    edit_g.ref = None
+                else:
+                    edit_g.ref=''
+            elif isinstance(edit_g, vvhgvs.edit.Dup):
+                ref = edit_g.ref + edit_g.ref
+                if not ref:
+                    ref = self.hdp.get_seq(var_c.ac, pos_n.start.base - 1, pos_n.end.base)
+                    ref = ref + ref
+                edit_g = vvhgvs.edit.NARefAlt(ref='', alt=ref)
+            elif isinstance(edit_g, vvhgvs.edit.Inv):
+                ref = edit_g.ref
+                if not ref:
+                    ref = self.hdp.get_seq(var_c.ac, pos_n.start.base - 1, pos_n.end.base)
+                edit_g = vvhgvs.edit.NARefAlt(ref='',alt=ref)
+            if tm.strand == -1:
+                edit_g.ref = reverse_complement(edit_g.ref)
+        elif var_c.posedit.edit.type == 'ins' and not is_ins:
+            edit_g.ref = ''
+
+        var_g = vvhgvs.sequencevariant.SequenceVariant(
+                ac=alt_ac,
+                type="g",
+                posedit=vvhgvs.posedit.PosEdit(pos_g, edit_g))
         if self.replace_reference:
             self._replace_reference(var_g)
         return var_g
