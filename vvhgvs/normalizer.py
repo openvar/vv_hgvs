@@ -190,11 +190,6 @@ class Normalizer(object):
                                 "alt_aln_method"] == self.alt_aln_method]
                     alt_ac = map_info[0]["alt_ac"]
 
-                # Get tx info
-                tx_info = self.hdp.get_tx_info(var.ac, alt_ac, self.alt_aln_method)
-                cds_start = tx_info["cds_start_i"]
-                cds_end = tx_info["cds_end_i"]
-
                 # Get exon info
                 exon_info = self.hdp.get_tx_exons(var.ac, alt_ac, self.alt_aln_method)
                 exon_starts = [exon["tx_start_i"] for exon in exon_info]
@@ -223,28 +218,10 @@ class Normalizer(object):
                         "Unsupported normalization of variants spanning the exon-intron boundary ({var})".format(
                             var=var))
 
+                # Updates to the code stop the correct normalisation of UTR to CDS.
+                # Logic, they belong to the reference, unlike introns, so shuffling should not be restricted
                 left = exon_starts[i]
                 right = exon_ends[i]
-
-                if cds_start is None:
-                    pass
-                elif var.posedit.pos.end.base - 1 < cds_start:
-                    right = min(right, cds_start)
-                elif var.posedit.pos.start.base - 1 >= cds_start:
-                    left = max(left, cds_start)
-                else:
-                    raise HGVSUnsupportedOperationError(
-                        "Unsupported normalization of variants spanning the UTR-exon boundary ({var})".format(var=var))
-
-                if cds_end is None:
-                    pass
-                elif var.posedit.pos.start.base - 1 >= cds_end:
-                    left = max(left, cds_end)
-                elif var.posedit.pos.end.base - 1 < cds_end:
-                    right = min(right, cds_end)
-                else:
-                    raise HGVSUnsupportedOperationError(
-                        "Unsupported normalization of variants spanning the exon-UTR boundary ({var})".format(var=var))
 
                 return left, right
         else:
